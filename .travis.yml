@@ -9,10 +9,12 @@ before_install:
     - hash -r
     - conda config --set always_yes yes --set changeps1 no
     - conda info -a
+    - conda create --name build_env
+    - conda activate build_env
     - conda install conda-build
-install:
-    - export GIT_BUILD_STR
     - conda build conda -c defaults -c conda-forge
+    - conda deactivate
+install:
     - conda create --name spudtr_env spudtr -c local -c defaults -c conda-forge
     - source activate spudtr_env  # so tests run in env as installed by conda
     - conda install black pytest-cov
