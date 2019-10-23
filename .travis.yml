@@ -9,7 +9,7 @@ before_install:
     - hash -r
     - conda config --set always_yes yes --set changeps1 no
     - conda info -a
-    - conda install conda-build conda-verify
+    - conda install conda-build
 install:
     - export GIT_BUILD_STR
     - conda build conda -c defaults -c conda-forge
