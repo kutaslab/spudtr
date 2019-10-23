@@ -1,10 +1,11 @@
 # to work in development mode use:  pip install -e .
 
-from setuptools import find_packages, setup # , Extension
 # from Cython.Distutils import build_ext
 # from Cython.Build import cythonize
+# import numpy as np
+
+from setuptools import find_packages, setup  # , Extension
 from pathlib import Path
-import numpy as np
 import re
 from spudtr import get_ver
 
@@ -36,6 +37,6 @@ setup(
     url="http://kutaslab.ucsd.edu/people/urbach",
     packages=find_packages(),
     scripts=["bin/stub"],
-#    cmdclass={"build_ext": build_ext},
-#    ext_modules=cythonize(extensions, language_level=3),
+    #    cmdclass={"build_ext": build_ext},
+    #    ext_modules=cythonize(extensions, language_level=3),
 )
