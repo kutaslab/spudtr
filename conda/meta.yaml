@@ -6,6 +6,9 @@ package:
     name: spudtr
     version: {{ version }}
 
+git:
+  depth: false
+
 source:
   # path: ../
   # git_url: https://github.com/kutaslab/spudtr  # defaults to master
