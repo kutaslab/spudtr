@@ -9,11 +9,11 @@ package:
 source:
   # path: ../
   git_url: ../   # for GIT_X env vars are defined
+  tags: true
 
 build:
     script: python setup.py install --single-version-externally-managed --record=record.txt
-    # string: {{ environ.get('GIT_BUILD_STR', '') }}
-    string: {{ GIT_BUILD_STR }}
+    string: {{ environ.get('GIT_BUILD_STR', '') }}
 
 requirements:
     # build ... all moved to host
