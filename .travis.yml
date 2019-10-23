@@ -5,18 +5,15 @@ language: minimal
 before_install:
     - wget https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh -O miniconda.sh
     - bash miniconda.sh -b -p $HOME/miniconda
-    # - export PATH="$HOME/miniconda/bin:$PATH"
     - source $HOME/miniconda/etc/profile.d/conda.sh && conda activate
     - hash -r
     - conda config --set always_yes yes --set changeps1 no
     - conda info -a
-    - conda list
 install:
-    - conda install -q conda-build
+    - conda install -q conda-build conda-verify
     - conda build conda -c defaults -c conda-forge
     - conda create --name spudtr_env spudtr -c local -c defaults -c conda-forge
-    - conda deactivate
-    - source activate spudtr_env  # so tests run in env as installed by conda
+    - conda activate spudtr_env  # so tests run in env as installed by conda
     - conda install black pytest-cov
     - conda list
     - lscpu
