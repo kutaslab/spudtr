@@ -11,6 +11,7 @@ before_install:
     - conda info -a
     - conda install conda-build conda-verify
 install:
+    - export GIT_BUILD_STR
     - conda build conda -c defaults -c conda-forge
     - conda create --name spudtr_env spudtr -c local -c defaults -c conda-forge
     - source activate spudtr_env  # so tests run in env as installed by conda
