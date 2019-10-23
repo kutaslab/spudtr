@@ -11,7 +11,7 @@ before_install:
     - conda info -a
 install:
     - conda create --name build_env
-    - conda activate build_env
+    - source activate build_env
     - conda install conda-build
     - conda build conda -c defaults -c conda-forge
     - conda create --name spudtr_env spudtr -c local -c defaults -c conda-forge
