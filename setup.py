@@ -8,9 +8,9 @@ import numpy as np
 import re
 from spudtr import get_ver
 
-extensions = [
-    Extension("_spudtr", ["src/_spudtr.pyx"], include_dirs=[np.get_include()])
-]
+# extensions = [
+#      Extension("_spudtr", ["src/_spudtr.pyx"], include_dirs=[np.get_include()])
+# ]
 
 # fetch spudtr/__version__
 __version__ = get_ver()
