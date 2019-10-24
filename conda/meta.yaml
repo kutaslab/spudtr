@@ -7,16 +7,14 @@ package:
     version: {{ version }}
 
 source:
-  # git_url: https://github.com/kutaslab/spudtr.git
-  # git_tag: {{ version }}
-  path: ../
+  git_url: ../
 
 build:
     script: python setup.py install --single-version-externally-managed --record=record.txt
+    string: {{ GIT_BUILD_STR }}
 
 requirements:
     # build ... all moved to host
-
     host:
         - python ={{ py_pin }}  # else cython uses Python 3.7
         - numpy =={{ np_pin }}
