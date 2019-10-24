@@ -1,4 +1,4 @@
-# spudtr requires a current GIT_TOKEN and ANACONDA_TOKEN on TravisCI kutaslab/spudtr
+# spudtr requires a current GIT_TOKEN on TravisCI kutaslab/spudtr
 env:
     - PACKAGE_NAME: spudtr   # for the conda_upload.sh deploy script
 language: minimal
@@ -32,7 +32,7 @@ before_deploy:
     - make -C docs html
     - touch docs/build/html/.nojekyll
 deploy:
-    # upload github releases to Anaconda Cloud
+    # upload github vN.N.N releases to Anaconda Cloud with TravisCI
     - provider: script
       skip_cleanup: true
       script: bash ./scripts/conda_upload.sh
