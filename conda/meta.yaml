@@ -15,7 +15,6 @@ build:
 
 requirements:
     # build ... all moved to host
-
     host:
         - python ={{ py_pin }}  # else cython uses Python 3.7
         - numpy =={{ np_pin }}
