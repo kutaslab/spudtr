@@ -35,12 +35,13 @@ deploy:
     # upload github vN.N.N releases to Anaconda Cloud with TravisCI
     - provider: script
       skip_cleanup: true
-      script: bash ./scripts/conda_upload.sh
+      script: bash ./ci/conda_upload.sh
       on:
           all_branches: true
 
     # only master branch refreshes the docs
     - provider: pages
+      verbose: true
       skip_cleanup: true
       github_token: $GITHUB_TOKEN
       on:

@@ -12,7 +12,7 @@ source:
 
 build:
   script: python setup.py install --single-version-externally-managed --record=record.txt
-  string: {{ environ.get('GIT_BUILD_STR', "g_notags") }}
+  string: {{ environ.get('GIT_BUILD_STR', "no_tags_on_travis_br") }}
 
 requirements:
     # build ... all moved to host
