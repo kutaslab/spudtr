@@ -16,9 +16,9 @@ touch docs/build/html/.nojekyll
 GITHUB_TOKEN=${GITHUB_TOKEN:-not_set}
 TRAVIS_BRANCH=${TRAVIS_BRANCH:-null_branch}
 
-# doc destination 
+# docs destination 
 # git_repo="github.com/turbach/test_spudtr.git"
-git_repo = github.com/${TRAVIS_REPO_SLUG}
+git_repo=github.com/${TRAVIS_REPO_SLUG}
 doc_branch="gh-pages"
 
 user=${PACKAGE_NAME}_ghpages_bot  

@@ -45,18 +45,5 @@ deploy:
       skip_cleanup: true
       script: bash ./ci/ghpages_upload.sh
       on:
-          all_branches: true
-          # condition: $TRAVIS_TAG =~ ^v[0-9]+\.[0-9]+\.[0-9]+$  # restrict to releases
-          # branch: master
-
-    # only master branch refreshes the docs
-    # - provider: pages
-    #   verbose: true
-    #   skip_cleanup: true
-    #   github_token: $GITHUB_TOKEN
-    #   on:
-    #       # branch: master
-    #       all_branches: true
-    #   target_branch: gh-pages  # that's the default anyway, just to be explicit
-    #   local_dir: docs/build/html
-
+          # all_branches: true   # trigger script for testing only
+          branch: master
