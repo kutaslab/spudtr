@@ -26,7 +26,7 @@ with open(meta_yaml_f) as f:
         )
         raise Exception(fail_msg)
 
-with open("readme.md", "r") as fh:
+with open("README.md", "r") as fh:
     long_description = fh.read()
 
 setup(
@@ -37,10 +37,11 @@ setup(
     long_description_content_type="text/markdown",
     author="Thomas P. Urbach",
     author_email="turbach@ucsd.edu",
-    url="https://https://github.com/kutaslab/spudtr",
+    url="https://github.com/kutaslab/spudtr",
     classifiers=[
         "Programming Language :: Python :: 3",
         "License :: OSI Approved :: BSD License",
+        "Intended Audience :: Science/Research",
     ],
     packages=find_packages(),
     #    scripts=["bin/stub"],
