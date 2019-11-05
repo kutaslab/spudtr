@@ -23,21 +23,23 @@ script:
     - pytest --cov=spudtr
 after_success:
     - pip install codecov && codecov
-# before_deploy:
-    # - pip install sphinx sphinx_rtd_theme jupyter nbsphinx nbconvert!=5.4
-    # - conda install -c conda-forge pandoc
-    # - conda install anaconda-client
-    # - conda list
-    # - sphinx-apidoc -e -f -o docs/source . ./tests/* ./setup.py
-    # - make -C docs html
-    # - touch docs/build/html/.nojekyll
 deploy:
     # upload github vN.N.N releases to Anaconda Cloud with TravisCI
     - provider: script
       skip_cleanup: true
       script: bash ./ci/conda_upload.sh
       on:
-          all_branches: true
+          all_branches: true  # for testing
+          # tags: true
+          # condition: $TRAVIS_TAG =~ ^v[0-9]+\.[0-9]+\.[0-9]+$  # restrict to releases
+
+    - provider: pypi
+      skip_cleanup: true
+      user: "__token__"
+      password: $PYPI_TOKEN
+      on:
+        all_branches: true  # for testing
+          # tags: true
           # condition: $TRAVIS_TAG =~ ^v[0-9]+\.[0-9]+\.[0-9]+$  # restrict to releases
 
     # homegrown replacement for pages provider
@@ -45,5 +47,5 @@ deploy:
       skip_cleanup: true
       script: bash ./ci/ghpages_upload.sh
       on:
-          # all_branches: true   # trigger script for testing only
+          # all_branches: true   # testing only
           branch: master
