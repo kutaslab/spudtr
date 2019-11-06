@@ -30,7 +30,6 @@ deploy:
       script: bash ./ci/conda_upload.sh
       on:
           # all_branches: true  # for testing
-          tags: true
           condition: $TRAVIS_TAG =~ ^v[0-9]+\.[0-9]+\.[0-9]+$  # restrict to release tags
 
     - provider: pypi
@@ -39,7 +38,6 @@ deploy:
       password: $PYPI_TOKEN
       on:
           # all_branches: true  # for testing
-          tags: true
           condition: $TRAVIS_TAG =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ 
 
     # homegrown replacement for pages provider
@@ -48,4 +46,5 @@ deploy:
       script: bash ./ci/ghpages_upload.sh
       on:
           # all_branches: true   # testing only
-          branch: master
+          # branch: master
+          condition: $TRAVIS_TAG =~ ^v[0-9]+\.[0-9]+\.[0-9]+$  # restrict to release tags
