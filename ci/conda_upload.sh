@@ -50,9 +50,11 @@ mmp=`echo $version | sed -n "s/\(\([0-9]\+\.\)\{1,2\}[0-9]\+\).*/\1/p"`
 #   vMajor.Minor.Patch release tag convention for conda uploads.
 if [[ "${version}" = "$mmp" && $TRAVIS_BRANCH = v$mmp ]]; then
     is_release="true"
+    label_param="main"
     conda install anaconda-client
 else
     is_release="false"
+    label_param="pre-release"
 fi
 
 
@@ -60,7 +62,7 @@ fi
 mkdir -p ${bld_prefix}/conda-convert/linux-64
 cp ${tarball} ${bld_prefix}/conda-convert/linux-64
 cd ${bld_prefix}/conda-convert
-conda convert --platform all linux-64/fitgrid*tar.bz2
+conda convert --platform all linux-64/${PACKAGE_NAME}*tar.bz2
 
 # POSIX trick sets $ANACONDA_TOKEN if unset or empty string 
 ANACONDA_TOKEN=${ANACONDA_TOKEN:-[not_set]}
