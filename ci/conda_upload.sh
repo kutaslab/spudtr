@@ -49,12 +49,12 @@ mmp=`echo $version | sed -n "s/\(\([0-9]\+\.\)\{1,2\}[0-9]\+\).*/\1/p"`
 #   as the branch name so $TRAVIS_BRANCH = v$mmp enforces the
 #   vMajor.Minor.Patch release tag convention for conda uploads.
 if [[ "${version}" = "$mmp" && $TRAVIS_BRANCH = v$mmp ]]; then
-    is_release="true"
+    is_release=""
     label_param="main"
     conda install anaconda-client
 else
     is_release="false"
-    label_param="pre-release"
+    label_param="--label pre-release"
 fi
 
 
