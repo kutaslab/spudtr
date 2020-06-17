@@ -158,21 +158,21 @@ def _find_subscript(times, start, stop):
     istart = np.where(times >= start)[0]
     if len(istart) == 0:
         raise ValueError(
-            'start is too large (%s), it exceeds the largest '
-            'time value' % (start,)
+            "start is too large (%s), it exceeds the largest "
+            "time value" % (start,)
         )
     istart = int(istart[0])
 
     istop = np.where(times <= stop)[0]
     if len(istop) == 0:
         raise ValueError(
-            'stop is too small (%s), it is smaller than the '
-            'smallest time value' % (stop,)
+            "stop is too small (%s), it is smaller than the "
+            "smallest time value" % (stop,)
         )
     istop = int(istop[-1])
     if istart >= istop:
         raise ValueError(
-            'Bad rescaling slice (%s:%s) from time values %s, %s'
+            "Bad rescaling slice (%s:%s) from time values %s, %s"
             % (istart, istop, start, stop)
         )
     return istart, istop
