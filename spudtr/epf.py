@@ -154,7 +154,7 @@ def _epochs_QC(epochs_df, data_streams, epoch_id=EPOCH_ID, time=TIME):
     return epochs_df
 
 
-def find_subscript(times, start, stop):
+def _find_subscript(times, start, stop):
     istart = np.where(times >= start)[0]
     if len(istart) == 0:
         raise ValueError(
@@ -169,7 +169,7 @@ def find_subscript(times, start, stop):
             'stop is too small (%s), it is smaller than the '
             'smallest time value' % (stop,)
         )
-    istop = int(istop[-1]) + 1
+    istop = int(istop[-1])
     if istart >= istop:
         raise ValueError(
             'Bad rescaling slice (%s:%s) from time values %s, %s'
@@ -179,13 +179,7 @@ def find_subscript(times, start, stop):
 
 
 def center_eeg(
-    df_in,
-    streams,
-    start,
-    stop,
-    epoch_id="epoch_id",
-    time="time",
-    verbose=False,
+    epochs_df, eeg_streams, start, stop, epoch_id=EPOCH_ID, time=TIME
 ):
 
     """center (a.k.a. "baseline") EEG amplitude on mean from start to stop
@@ -210,10 +204,10 @@ def center_eeg(
     """
 
     # calculate the row-index vector to slice the centering intervals
-    n_times = len(df_in[time].unique())
-    n_epochs = len(df_in[epoch_id].unique())
-    times = df_in[time].unique()
-    istart, istop = find_subscript(times, start, stop)
+    n_times = len(epochs_df[time].unique())
+    n_epochs = len(epochs_df[epoch_id].unique())
+    times = epochs_df[time].unique()
+    istart, istop = _find_subscript(times, start, stop)
     center_idxs = np.array(
         [
             np.arange(istart + (i * n_times), istop + (i * n_times))
@@ -222,23 +216,10 @@ def center_eeg(
     ).flatten()
 
     # use pandas iloc index slicing then groupby epoch_id to compute means
-    mns = df_in.iloc[center_idxs, :].groupby(epoch_id)[streams].mean()
-
-    if verbose:
-        print("centering interval indexes\n", center_idxs)
-        print("centering interval values\n", df_in.iloc[center_idxs, :])
-        print("input data centering interval means\n", mns)
+    mns = epochs_df.iloc[center_idxs, :].groupby(epoch_id)[eeg_streams].mean()
 
     # inflate the means to the shape of the data and subtract in place, not sure if view() saves memory
-    df_in[streams] -= np.repeat(mns.to_numpy().view(), n_times, axis=0)
-
-    # verify centering == 0 and report failures
-    zero_mns = df_in.iloc[center_idxs, :].groupby(epoch_id)[streams].mean()
-    atol = 1e-02
-    if all([np.allclose(0, zero_mns, atol=atol)]):
-        print(f"center_on is successful with atol={atol}")
-    else:
-        raise ValueError(f"center_on is not successful with atol={atol}")
+    epochs_df[eeg_streams] -= np.repeat(mns.to_numpy().view(), n_times, axis=0)
 
 
 def drop_bad_epochs(epochs_df, bads_column, epoch_id=EPOCH_ID, time=EPOCH_ID):
