@@ -55,7 +55,7 @@ mmp=`echo $version | sed -n "s/\(\([0-9]\+\.\)\{1,2\}[0-9]\+\).*/\1/p"`
 label="dry-run"
 if [[ "${version}" = "$mmp" ]]; then
 
-    # a commit to master uploads to /pre-release
+    # commit to master uploads to /pre-release
     if [[ $TRAVIS_BRANCH = "master" ]]; then
 	label="pre-release"
     fi
@@ -70,7 +70,7 @@ fi
 mkdir -p ${bld_prefix}/conda-convert/linux-64
 cp ${tarball} ${bld_prefix}/conda-convert/linux-64
 cd ${bld_prefix}/conda-convert
-conda convert --platform all linux-64/${PACKAGE_NAME}*tar.bz2
+conda convert -p linux-64 -p osx-64 -p win-64  linux-64/${PACKAGE_NAME}*tar.bz2
 
 # POSIX trick sets $ANACONDA_TOKEN if unset or empty string 
 ANACONDA_TOKEN=${ANACONDA_TOKEN:-[not_set]}
@@ -83,8 +83,7 @@ echo "conda-bld: ${bld_prefix}/conda-bld/linux-64"
 echo "tarball: $tarball"
 echo "travis tag: $TRAVIS_TAG"
 echo "travis branch: $TRAVIS_BRANCH"
-echo "is_release: $is_release"
-echo "conda_label: ${label_param}"
+echo "conda label: ${label}"
 echo "conda upload command: ${conda_cmd}"
 echo "platforms:"
 echo "$(ls ./**/${PACKAGE_NAME}*.tar.bz2)"
@@ -93,8 +92,6 @@ echo "$(ls ./**/${PACKAGE_NAME}*.tar.bz2)"
 #    attempt the upload 
 # else
 #    skip the upload and exit happy
-# if [[ $ANACONDA_TOKEN != "[not_set]" && $is_release = "true" ]]; then
-
 if [[ $ANACONDA_TOKEN != "[not_set]" && ( $label = "main" || $label = "pre-release" ) ]]; then
 
     conda install anaconda-client

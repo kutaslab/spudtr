@@ -39,7 +39,7 @@ requirements:
         - matplotlib
         - bottleneck
         - pytables
-        - pyarrow
+        - pyarrow >=0.13
 
 test:
     imports:
