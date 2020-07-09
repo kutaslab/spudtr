@@ -35,7 +35,7 @@ requirements:
         - numpy =={{ np_pin }}  # these to pull from anaconda for mkl
         - numpy-base =={{ np_pin }}
         - scipy
-        - pandas < 1.0
+        - pandas <1.0
         - matplotlib
         - bottleneck
         - pytables
