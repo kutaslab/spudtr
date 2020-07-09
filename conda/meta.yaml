@@ -35,11 +35,11 @@ requirements:
         - numpy =={{ np_pin }}  # these to pull from anaconda for mkl
         - numpy-base =={{ np_pin }}
         - scipy
-        - pandas
+        - pandas < 1.0
         - matplotlib
         - bottleneck
         - pytables
-        - pyarrow >=0.13
+        - pyarrow
 
 test:
     imports:
