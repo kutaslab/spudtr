@@ -112,6 +112,7 @@ def get_demo_df(filename, url=DATA_URL):
         "pygarv",
     ]
     df.drop(columns=_mkh5_internal, inplace=True)
+    print(f"caching {DATA_DIR / filename})
 
     df.to_feather(DATA_DIR / filename)
     return df
