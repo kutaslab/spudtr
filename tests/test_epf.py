@@ -1,7 +1,7 @@
 import pytest
 
 # local HDF5 files to be deprecated in v0.0.11 with _hdf_read_epochs
-from spudtr import DATA_DIR # , P3_F, P5_F, WR_F
+from spudtr import DATA_DIR  # , P3_F, P5_F, WR_F
 
 # Zenodo archive feather files used starting with v0.0.9
 from spudtr import get_demo_df, WR_100_FEATHER, P5_1500_FEATHER
