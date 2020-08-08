@@ -77,7 +77,7 @@ def get_demo_df(filename, url=DATA_URL):
         return pd.read_feather(DATA_DIR / filename)
 
     # otherwise download
-    print(f"downloading {filename} from {url} ... please wait")
+    print(f"downloading ./spudtr/data/{filename} from {url} ... please wait")
     if not url[-1] == r"/":
         url += r"/"
     resp = requests.get(url + filename, stream=True)
@@ -116,7 +116,5 @@ def get_demo_df(filename, url=DATA_URL):
         "pygarv",
     ]
     df.drop(columns=_mkh5_internal, inplace=True)
-    print(f"caching download {DATA_DIR / filename}")
-
     df.to_feather(DATA_DIR / filename)
     return df
