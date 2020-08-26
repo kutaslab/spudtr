@@ -362,7 +362,7 @@ def test__trans_bwidth_ripple():
 @pytest.mark.parametrize(
     "_ftype,_cutoff_hz",
     [
-        ["highpass", 20],
+        ["lowpass", 20],
         ["highpass", 20],
         ["bandpass", [22, 40]],
         ["bandstop", [18, 35]],
@@ -384,15 +384,3 @@ def test_filters_effect(_ftype, _cutoff_hz):
     )
     plt.clf()
     plt.close("all")
-    # filters.filters_effect(_cutoff_hz, sfreq, ftype)
-
-    # ftype = "lowpass"
-    # cutoff_hz = 1
-    # filters.filters_effect(cutoff_hz, sfreq, ftype)
-    # ftype = "highpass"
-    # cutoff_hz = 1
-    # filters.filters_effect(cutoff_hz, sfreq, ftype)
-    # ftype = "bandstop"
-    # cutoff_hz = [1, 10]
-    # filters.filters_effect(cutoff_hz, sfreq, ftype)
-    # assert sfreq == 250
