@@ -7,6 +7,7 @@ from collections import OrderedDict
 from spudtr.epf import _epochs_QC
 from spudtr import DATA_DIR
 
+
 def streams2mne_digmont(eeg_streams):
 
     _f = DATA_DIR / "cap26.csv"
@@ -178,6 +179,7 @@ def _categories2eventid(epochs_df, categories, epoch_id, time, time_stamp):
     # pdb.set_trace()
     return mne_event_id, mne_events
 
+
 # transfer spudtr epochs to mne epochs without events
 def spudtr2mne(epochs_df, eeg_streams, time, epoch_id, sfreq):
 
@@ -198,6 +200,7 @@ def spudtr2mne(epochs_df, eeg_streams, time, epoch_id, sfreq):
         epochs_data.append(epoch1.T)
     epochs = mne.EpochsArray(epochs_data, info=info)
     return epochs
+
 
 # transfer spudtr epochs to mne epochs with events
 def spudtr2mne_epochs(

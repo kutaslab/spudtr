@@ -564,11 +564,7 @@ def _design_firwin_filter(
 
 
 def _sins_test_data(
-    freq_list,
-    amplitude_list,
-    sampling_freq=250,
-    duration=1.5,
-    show_plot=False,
+    freq_list, amplitude_list, sampling_freq=250, duration=1.5, show_plot=False
 ):
     """creat a noisy signal to test the filter
 

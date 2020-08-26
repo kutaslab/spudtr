@@ -124,7 +124,7 @@ assert WR_100_FEATHER_DF.shape == (12425, 51)
 assert all(WR_100_FEATHER_DF.columns == WR_DF_COLS)
 
 P5_1500_FEATHER_DF = get_demo_df(P5_1500_FEATHER)
-assert P5_1500_FEATHER_DF.shape == (335250, 45)
+assert P5_1500_FEATHER_DF.shape == (335_250, 45)
 assert all(P5_1500_FEATHER_DF.columns == P5_DF_COLS)
 
 print("ok")
