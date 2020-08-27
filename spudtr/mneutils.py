@@ -126,7 +126,7 @@ def _categories2eventid(epochs_df, categories, epoch_id, time, time_stamp):
     _ = _epochs_QC(epochs_df, categories, epoch_id=epoch_id, time=time)
 
     if time_stamp not in epochs_df[time].unique():
-        raise ValueErrorf(
+        raise ValueError(
             f"time_stamp {time_stamp} not found in epochs_df['{time}']"
         )
 
