@@ -36,7 +36,7 @@ requirements:
         - pyarrow
         - patsy
         - requests
-
+        - mne
 test:
     imports:
         - spudtr
