@@ -42,23 +42,16 @@ def test_streams2mne_digmont():
     montage = mneutils.streams2mne_digmont(eeg_streams)
     assert montage.ch_names == eeg_streams
 
-    eeg_streams = [
-        "lle",
-        "lhz",
-        "MiPf",
-        "LLPf",
-        "RLPf",
-        "aa",
-    ]
+    eeg_streams = ["lle", "lhz", "MiPf", "LLPf", "RLPf", "aa"]
 
     with pytest.raises(ValueError) as excinfo:
         mneutils.streams2mne_digmont(eeg_streams)
-    assert 'eeg_streams not found in cap' in str(excinfo.value)
+    assert "eeg_streams not found in cap" in str(excinfo.value)
 
 
 def test_spudtr2mne():
 
-    epochs_df = get_demo_df('sub000p3.ms100.epochs.feather')
+    epochs_df = get_demo_df("sub000p3.ms100.epochs.feather")
     epoch_id = "epoch_id"
     time = "time_ms"
     _categories = "stim"
@@ -71,7 +64,7 @@ def test_spudtr2mne():
 
 def test_spudtr2mne_epochs():
 
-    epochs_df = get_demo_df('sub000p3.ms100.epochs.feather')
+    epochs_df = get_demo_df("sub000p3.ms100.epochs.feather")
     epoch_id = "epoch_id"
     time = "time_ms"
     time_stamp = 0
@@ -97,7 +90,7 @@ def test_spudtr2mne_epochs():
 
 def test__categories2eventid():
 
-    epochs_df = get_demo_df('sub000p3.ms100.epochs.feather')
+    epochs_df = get_demo_df("sub000p3.ms100.epochs.feather")
     epoch_id = "epoch_id"
     time = "time_ms"
     time_stamp = 0
@@ -134,4 +127,4 @@ def test__categories2eventid():
         mneutils._categories2eventid(
             epochs_df, _categories, epoch_id, time, time_stamp
         )
-    assert 'time_stamp' in str(excinfo.value)
+    assert "time_stamp" in str(excinfo.value)
