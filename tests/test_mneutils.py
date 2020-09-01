@@ -5,7 +5,7 @@ import patsy
 from spudtr import DATA_DIR, mneutils, get_demo_df
 
 
-def test_streams2mne_digmont():
+def test__streams2mne_digmont():
 
     eeg_streams = [
         "lle",
@@ -39,45 +39,52 @@ def test_streams2mne_digmont():
         "rle",
         "rhz",
     ]
-    montage = mneutils.streams2mne_digmont(eeg_streams)
+    montage = mneutils._streams2mne_digmont(eeg_streams)
     assert montage.ch_names == eeg_streams
 
     eeg_streams = ["lle", "lhz", "MiPf", "LLPf", "RLPf", "aa"]
 
     with pytest.raises(ValueError) as excinfo:
-        mneutils.streams2mne_digmont(eeg_streams)
+        mneutils._streams2mne_digmont(eeg_streams)
     assert "eeg_streams not found in cap" in str(excinfo.value)
 
 
-def test_spudtr2mne():
+# def test_spudtr2mne():
+
+#     epochs_df = get_demo_df("sub000p3.ms100.epochs.feather")
+#     epoch_id = "epoch_id"
+#     time = "time_ms"
+#     _categories = "stim"
+#     sfreq = 500
+#     eeg_streams = ["MiPf", "MiCe", "MiPa", "MiOc"]
+
+#     epochs = mneutils.spudtr2mne(epochs_df, eeg_streams, time, epoch_id, sfreq)
+#     assert epochs.ch_names == eeg_streams
+
+
+def test_spudtr_to_mne_epochs():
 
     epochs_df = get_demo_df("sub000p3.ms100.epochs.feather")
     epoch_id = "epoch_id"
     time = "time_ms"
-    _categories = "stim"
-    sfreq = 500
-    eeg_streams = ["MiPf", "MiCe", "MiPa", "MiOc"]
-
-    epochs = mneutils.spudtr2mne(epochs_df, eeg_streams, time, epoch_id, sfreq)
-    assert epochs.ch_names == eeg_streams
-
-
-def test_spudtr2mne_epochs():
-
-    epochs_df = get_demo_df("sub000p3.ms100.epochs.feather")
-    epoch_id = "epoch_id"
-    time = "time_ms"
+    time_unit = 0.001  # ms
     time_stamp = 0
-    _categories = "stim"
+    categories = "stim"
     sfreq = 500
     eeg_streams = ["MiPf", "MiCe", "MiPa", "MiOc"]
 
-    mne_event_id, mne_events = mneutils._categories2eventid(
-        epochs_df, _categories, epoch_id, time, time_stamp
+    mne_event_ids, mne_events = mneutils.categories2eventid(
+        epochs_df, categories, epoch_id, time, time_stamp
     )
 
-    epochs = mneutils.spudtr2mne_epochs(
-        epochs_df, eeg_streams, time, epoch_id, sfreq, mne_events, mne_event_id
+    epochs = mneutils.spudtr_to_mne_epochs(
+        epochs_df,
+        eeg_streams=eeg_streams,
+        epoch_id=epoch_id,
+        time=time,
+        time_unit=time_unit,
+        mne_events=mne_events,
+        mne_event_ids=mne_event_ids,
     )
 
     assert epochs.event_id == {
@@ -88,23 +95,21 @@ def test_spudtr2mne_epochs():
     assert epochs.ch_names == eeg_streams
 
 
-def test__categories2eventid():
+def test_categories2eventid():
 
     epochs_df = get_demo_df("sub000p3.ms100.epochs.feather")
     epoch_id = "epoch_id"
     time = "time_ms"
     time_stamp = 0
-    _categories = "stim"
+    categories = "stim"
     # sfreq = 500
     # eeg_streams = ['MiPf', 'MiCe', 'MiPa', 'MiOc']
 
-    mne_event_id, mne_events = mneutils._categories2eventid(
-        epochs_df, _categories, epoch_id, time, time_stamp
+    mne_event_id, mne_events = mneutils.categories2eventid(
+        epochs_df, categories, epoch_id, time, time_stamp
     )
 
-    event_id_1_head = np.array(
-        [[0, 0, 3], [1, 0, 3], [2, 0, 3], [3, 0, 3], [4, 0, 3]]
-    )
+    event_id_1_head = np.array([[0, 0, 3], [1, 0, 3], [2, 0, 3], [3, 0, 3], [4, 0, 3]])
 
     assert mne_event_id == {
         "stim[cal]": 1,
@@ -124,7 +129,5 @@ def test__categories2eventid():
 
     time_stamp = 9999
     with pytest.raises(ValueError) as excinfo:
-        mneutils._categories2eventid(
-            epochs_df, _categories, epoch_id, time, time_stamp
-        )
+        mneutils.categories2eventid(epochs_df, categories, epoch_id, time, time_stamp)
     assert "time_stamp" in str(excinfo.value)

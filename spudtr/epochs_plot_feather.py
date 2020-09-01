@@ -38,12 +38,7 @@ def OpenYaml_config():
 
 
 b1 = tkinter.Button(
-    root,
-    text="Select a eeg file",
-    height=3,
-    width=20,
-    font=helv16,
-    command=OpenFile,
+    root, text="Select a eeg file", height=3, width=20, font=helv16, command=OpenFile,
 )
 b1.pack(fill="x")
 b2 = tkinter.Button(
@@ -100,10 +95,5 @@ epochs = mneutils.spudtr2mne_epochs(
     epochs_df, eeg_streams, time, epoch_id, sfreq, mne_events, mne_event_id
 )
 epochs.plot(
-    picks="eeg",
-    scalings="auto",
-    show=True,
-    block=True,
-    n_channels=10,
-    n_epochs=10,
+    picks="eeg", scalings="auto", show=True, block=True, n_channels=10, n_epochs=10,
 )

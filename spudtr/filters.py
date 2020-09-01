@@ -91,14 +91,10 @@ def check_filter_params(
         warnings.warn(f"using default window='{window}'")
 
     if window not in WINDOWS:
-        raise ValueError(
-            f"window={window}, must be one of " + " ".join(WINDOWS)
-        )
+        raise ValueError(f"window={window}, must be one of " + " ".join(WINDOWS))
 
     # compute default cutoff_hz and ripple_db for this window, ftype, sfreq
-    _width_hz, _ripple_db = _trans_bwidth_ripple(
-        cutoff_hz, sfreq, ftype, window
-    )
+    _width_hz, _ripple_db = _trans_bwidth_ripple(cutoff_hz, sfreq, ftype, window)
 
     if width_hz is None and allow_defaults:
         width_hz = _width_hz
@@ -314,10 +310,7 @@ def show_filter(
 
     print(f"{_fp['ftype']} filter")
     print(f"sampling rate (samples / s): {_fp['sfreq']:0.3f}")
-    print(
-        "1/2 amplitude cutoff (Hz): "
-        + " ".join([f"hz:0.3f" for hz in _cutoff_hz])
-    )
+    print("1/2 amplitude cutoff (Hz): " + " ".join([f"hz:0.3f" for hz in _cutoff_hz]))
     print(f"transition width (Hz): {_fp['width_hz']:0.3f}")
     print(f"ripple (dB): {_fp['ripple_db']:0.3f}")
     print(f"window: {_fp['window']}")
@@ -329,9 +322,7 @@ def show_filter(
         f"(= {n_edge} samples at {sfreq} samples / s)"
     )
 
-    freq_phase = _mfreqz(
-        taps, _fp["sfreq"], _fp["cutoff_hz"], _fp["width_hz"], a=1
-    )
+    freq_phase = _mfreqz(taps, _fp["sfreq"], _fp["cutoff_hz"], _fp["width_hz"], a=1)
     imp_step = _impz(taps, a=1)
 
     if show_output:
@@ -452,9 +443,7 @@ def _impz(b, a=1):
     return fig
 
 
-def _design_firwin_filter(
-    cutoff_hz, width_hz, ripple_db, sfreq, ftype, window
-):
+def _design_firwin_filter(cutoff_hz, width_hz, ripple_db, sfreq, ftype, window):
     """calculate odd length, symmetric, linear phase FIR filter coefficients
 
     FIRLS at https://scipy-cookbook.readthedocs.io/items/FIRFilter.html
@@ -510,55 +499,31 @@ def _design_firwin_filter(
     if ftype.lower() == "lowpass":
         if window.lower() == "kaiser":
             taps = firwin(
-                N,
-                cutoff_hz,
-                window=("kaiser", beta),
-                pass_zero="lowpass",
-                fs=sfreq,
+                N, cutoff_hz, window=("kaiser", beta), pass_zero="lowpass", fs=sfreq,
             )
         else:
-            taps = firwin(
-                N, cutoff_hz, window=window, pass_zero="lowpass", fs=sfreq
-            )
+            taps = firwin(N, cutoff_hz, window=window, pass_zero="lowpass", fs=sfreq)
     elif ftype.lower() == "highpass":
         if window.lower() == "kaiser":
             taps = firwin(
-                N,
-                cutoff_hz,
-                window=("kaiser", beta),
-                pass_zero="highpass",
-                fs=sfreq,
+                N, cutoff_hz, window=("kaiser", beta), pass_zero="highpass", fs=sfreq,
             )
         else:
-            taps = firwin(
-                N, cutoff_hz, window=window, pass_zero="highpass", fs=sfreq
-            )
+            taps = firwin(N, cutoff_hz, window=window, pass_zero="highpass", fs=sfreq)
     elif ftype.lower() == "bandpass":
         if window.lower() == "kaiser":
             taps = firwin(
-                N,
-                cutoff_hz,
-                window=("kaiser", beta),
-                pass_zero="bandpass",
-                fs=sfreq,
+                N, cutoff_hz, window=("kaiser", beta), pass_zero="bandpass", fs=sfreq,
             )
         else:
-            taps = firwin(
-                N, cutoff_hz, window=window, pass_zero="bandpass", fs=sfreq
-            )
+            taps = firwin(N, cutoff_hz, window=window, pass_zero="bandpass", fs=sfreq)
     elif ftype.lower() == "bandstop":
         if window.lower() == "kaiser":
             taps = firwin(
-                N,
-                cutoff_hz,
-                window=("kaiser", beta),
-                pass_zero="bandstop",
-                fs=sfreq,
+                N, cutoff_hz, window=("kaiser", beta), pass_zero="bandstop", fs=sfreq,
             )
         else:
-            taps = firwin(
-                N, cutoff_hz, window=window, pass_zero="bandstop", fs=sfreq
-            )
+            taps = firwin(N, cutoff_hz, window=window, pass_zero="bandstop", fs=sfreq)
 
     return taps
 
@@ -595,9 +560,7 @@ def _sins_test_data(
     assert len(freq_list) == len(amplitude_list)
 
     t = np.arange(0.0, duration, 1 / sampling_freq)
-    x_noise = 0.1 * np.sin(2 * np.pi * 60 * t) + 0.2 * np.random.normal(
-        size=len(t)
-    )
+    x_noise = 0.1 * np.sin(2 * np.pi * 60 * t) + 0.2 * np.random.normal(size=len(t))
     # x = x_noise
     x = 0.0
     for i in range(len(freq_list)):
@@ -689,9 +652,7 @@ def fir_filter_dt(
     ):
         pass
     else:
-        raise TypeError(
-            "dt must be pandas.DataFrame or structured numpy.ndarray"
-        )
+        raise TypeError("dt must be pandas.DataFrame or structured numpy.ndarray")
 
     filt_dt = dt.copy()
     for column in col_names:
@@ -801,12 +762,7 @@ def _apply_firwin_filter_data(data, taps):
 
 
 def filters_effect(
-    ftype=None,
-    cutoff_hz=None,
-    width_hz=None,
-    ripple_db=None,
-    window=None,
-    sfreq=None,
+    ftype=None, cutoff_hz=None, width_hz=None, ripple_db=None, window=None, sfreq=None,
 ):
 
     """
@@ -878,21 +834,14 @@ def filters_effect(
 
     t, y = _sins_test_data(y_freqs, y_amplitude_list, sfreq, duration)
     t1, y1 = _sins_test_data(y1_freqs, y1_amplitude_list, sfreq, duration)
-    y_filt = fir_filter_data(
-        y, cutoff_hz, sfreq, ftype, width_hz, ripple_db, window
-    )
+    y_filt = fir_filter_data(y, cutoff_hz, sfreq, ftype, width_hz, ripple_db, window)
 
     fig, ax = plt.subplots(figsize=(16, 4))
 
     ax.plot(t, y, ".-", color="c", linestyle="-", label="input")
     ax.plot(t, y1, ".-", color="b", linestyle="-", label="ideal output")
     ax.plot(
-        t,
-        y_filt,
-        ".-",
-        color="r",
-        linestyle="-",
-        label="%s filter output" % ftype,
+        t, y_filt, ".-", color="r", linestyle="-", label="%s filter output" % ftype,
     )
     ax.set_title(
         (

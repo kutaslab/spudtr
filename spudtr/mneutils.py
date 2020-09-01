@@ -5,116 +5,114 @@ import mne
 from collections import OrderedDict
 
 from spudtr.epf import _epochs_QC
-from spudtr import DATA_DIR
+from spudtr import RESOURCES_DIR
+
+# RESOURCES_DIR
+
+# default
+EEG_LOCATIONS_F = RESOURCES_DIR / "eeg32.csv"
 
 
-def streams2mne_digmont(eeg_streams):
+def _streams2mne_digmont(eeg_streams, eeg_locations_f=EEG_LOCATIONS_F):
 
-    _f = DATA_DIR / "cap26.csv"
-
-    cap26 = pd.read_csv(_f)
-
-    missing_streams = set(eeg_streams) - set(cap26["stream"])
+    eeg_locs = pd.read_csv(eeg_locations_f)
+    missing_streams = set(eeg_streams) - set(eeg_locs["stream"])
     if missing_streams:
         raise ValueError(f"eeg_streams not found in cap: {missing_streams}")
 
-    df = cap26.set_index("stream").loc[eeg_streams, :].reset_index()
-    ch_names = df.stream.to_list()
+    df = eeg_locs.set_index("stream").loc[eeg_streams, :].reset_index()
+    ch_names = df.stream.tolist()
     pos = df[["x", "y", "z"]].values
     dig_ch_pos = OrderedDict(zip(ch_names, pos))
-    montage = mne.channels.make_dig_montage(
-        ch_pos=dig_ch_pos, coord_frame="head"
-    )
+    montage = mne.channels.make_dig_montage(ch_pos=dig_ch_pos, coord_frame="head")
     return montage
 
 
-def _categories2eventid(epochs_df, categories, epoch_id, time, time_stamp):
-    """build mne events and event_id with patsy 
+def categories2eventid(epochs_df, categories, epoch_id, time, time_stamp):
+    """Build an MNE events array and event_id dict from one or more categorical variables.
 
-
-    This uses patsy formulas and full rank dummy coded design matrixes to build
-    an mne format event_id dictionaries and corresponding events array (events x 3).
+    This uses patsy formulas and dummy coded (full rank) design
+    matrixes to construct the MNE format event_id dictionary and
+    corresponding events array (events x 3) for tagging and binning
+    single-trial epochs for time-domain aggregation into
+    ``mne.Evoked``, e.g., average event-related potentials (ERPs).
 
     A single category is split into the category levels, a.k.a conditions, bins,
-    like so "~ 0 + a".
+    like so: ``~ 0 + a``.
 
-    Multiple categories fully crossed like so: "~ 0 +  a:b" and "~ 0 + a:b:c"
+    Multiple categories fully crossed like so: ``~ 0 +  a:b`` and ``~ 0 + a:b:c``
     
     Parameters
     ----------
     epochs_df : pandas.DataFrame
-       spudtr format epochs data with ``epoch_id``, ``time`` columns
+       A spudtr format epochs data with ``epoch_id``, ``time`` columns.
 
-    categories : str or list of str
-        column name(s) with string or pd.Categorical values 
+    categories : str or iterable of str
+        The column name(s) of the categorical variables.
 
-    epoch_id : 
-        name of the column with the unique integer epoch ids
+    epoch_id : str
+        The name of the column with the unique epoch ids, e.g.,
+        ``epoch_id``, ``Epoch_idx``.
 
     time : str
-        name of the column with the epoch time stamps
+        The name of the column with the regular epoch time stamps, e.g., ``time``,
+        ``time_ms``, ``time_s``.
 
-    time_stamp : int
-        value of the time point a which to look up the category levels
+    time_stamp : int The time stamp in the epoch to look up the
+        categorical variable values, e.g., ``0``
 
-
-    Returns:
+    Returns
+    -------
     mne_event_id : dict
 
-       MNE Python event_id dictionary where each item is ``label:
+       An MNE Python event_id dictionary where each item is ``label:
        event_code``.  The ``label`` is the column name from the patsy
-       full rank fully crossed design matrix (incidence matrix) for
-       the categories. The ``event_code`` is the 1-based column index
+       full-rank design matrix (incidence matrix) for the categories
+       (thank you NJS). The ``event_code`` is the 1-based column index
        in the design matrix.
 
     mne_events : np.array, shape=(number_of_epochs, 3) there is one
-       row for each epoch in ``epochs_df``. Each row is ``[epoch_id,
-       0, mne_event_code]`` where ``mne_event_code`` is the newly
+       row for each epoch in ``epochs_df``. Each row is
+
+         ``[epoch_id, 0, mne_event_code]`` 
+
+       where ``mne_event_code`` is the newly
        constructed event code derived from the ``patsy`` design matrix
        column
         
 
-    Suppose at the specified time stamp the epochs_df categorical columns
-    ``a`` and ``b`` have have the following levels:
+    Examples
+    --------
+    Suppose at the specified time stamp the epochs_df categorical
+    columns ``a`` and ``b`` have have the following levels: ``a: a1,
+    a2``, ``b: b1, b2, b3``
 
-        a: a1, a2
-        b: b1, b2, b3
-
-
-    Example
-    -------
-
-        _categories2eventid(epochs_df, categories="a", epoch_id, time, time_stamp)
-
-        event_id = {
-            "a[a1]": 1,
-            "a[a2]": 2
-        }
+    >>> categories2eventid(epochs_df, categories="a", epoch_id, time, time_stamp)
+    event_ids = {
+        "a[a1]": 1,
+        "a[a2]": 2
+    }
 
 
-    Example
-    -------
-        _categories2eventid(epochs_df, categories="b", epoch_id, time, time_stamp)
-
-        event_id = {
-            "b[b1]": 1,
-            "b[b2]": 2,
-            "b[b3]": 3
-        }
+    >>> categories2eventid(epochs_df, categories="b", epoch_id, time, time_stamp)
+    event_ids = {
+        "b[b1]": 1,
+        "b[b2]": 2,
+        "b[b3]": 3
+    }
 
 
-    Example
-    -------
-        _categories2eventid(epochs_df, categories=["a", "b"], epoch_id, time, time_stamp)
+    >>> categories2eventid(epochs_df, categories=["a", "b"], epoch_id, time, time_stamp)
+    event_ids = {
+        'a[a1]:b[b1]': 1,
+        'a[a2]:b[b1]': 2,
+        'a[a1]:b[b2]': 3,
+        'a[a2]:b[b2]': 4,
+        'a[a1]:b[b3]': 5,
+        'a[a2]:b[b3]': 6
+    }
 
-        event_id = {
-            'a[a1]:b[b1]': 1,
-            'a[a2]:b[b1]': 2,
-            'a[a1]:b[b2]': 3,
-            'a[a2]:b[b2]': 4,
-            'a[a1]:b[b3]': 5,
-            'a[a2]:b[b3]': 6
-        }
+
 
     """
 
@@ -126,9 +124,7 @@ def _categories2eventid(epochs_df, categories, epoch_id, time, time_stamp):
     _ = _epochs_QC(epochs_df, categories, epoch_id=epoch_id, time=time)
 
     if time_stamp not in epochs_df[time].unique():
-        raise ValueError(
-            f"time_stamp {time_stamp} not found in epochs_df['{time}']"
-        )
+        raise ValueError(f"time_stamp {time_stamp} not found in epochs_df['{time}']")
 
     # slice the epoch row at the specified time_stamp, e.g., time==0
     # the category columns at this row are used to build the new
@@ -141,17 +137,12 @@ def _categories2eventid(epochs_df, categories, epoch_id, time, time_stamp):
     # factor levels w/ exactly one 1 in each row
     formula = "~ 0 + " + ":".join(categories)
     dm = patsy.dmatrix(formula, events_df)
-    assert all(
-        np.equal(1, [len(a) for a in map(lambda x: np.where(x == 1)[0], dm)])
-    )
+    assert all(np.equal(1, [len(a) for a in map(lambda x: np.where(x == 1)[0], dm)]))
     dm_cols = dm.design_info.column_names
 
-    # convert dm indidcator matrix to a 1-base vector that indexes
-    # which column of dm has the 1 via binary summation
+    # convert indidcator design  matrix to a 1-base vector that indexes
+    # which column of dm has the indicator 1 via binary summation
     # e.g., dm = [[1, 0, 0], [0, 1, 0], [0, 0, 1]] -> [1, 2, 3]
-    # dm_col_code = (
-    #     np.log2(dm.dot(1 << np.arange(dm.shape[-1]))).astype("int") + 1
-    # )
 
     dm_col_code = np.array(
         [np.where(dm[i, :] == 1)[0] + 1 for i in range(len(dm))]
@@ -163,66 +154,90 @@ def _categories2eventid(epochs_df, categories, epoch_id, time, time_stamp):
     mne_event_id = dict([(dm_col, i + 1) for i, dm_col in enumerate(dm_cols)])
 
     # mne array: n-events x 3
-    # import pdb; pdb.set_trace()
-
     mne_events = np.stack(
-        [
-            # np.array(events_df["epoch_id"]),
-            events_df["epoch_id"].to_numpy(),
-            np.zeros(len(events_df)),
-            dm_col_code,
-        ],
+        [events_df["epoch_id"].to_numpy(), np.zeros(len(events_df)), dm_col_code,],
         axis=1,
     ).astype("int")
-    # import pdb
-
     # pdb.set_trace()
     return mne_event_id, mne_events
 
 
-# transfer spudtr epochs to mne epochs without events
-def spudtr2mne(epochs_df, eeg_streams, time, epoch_id, sfreq):
-
-    montage = streams2mne_digmont(eeg_streams)
-
-    # create mne epochs from EpochsArray and show them
-    info = mne.create_info(
-        montage.ch_names, sfreq=sfreq, ch_types="eeg", montage=montage
-    )
-
-    epochs_data = []
-    # import pdb; pdb.set_trace()
-    for epoch_i in epochs_df[epoch_id].unique():
-        # epoch1 = epochs_df[info["ch_names"]][
-        epoch1 = epochs_df[montage.ch_names][
-            epochs_df.epoch_id == epoch_i
-        ].to_numpy()
-        epochs_data.append(epoch1.T)
-    epochs = mne.EpochsArray(epochs_data, info=info)
-    return epochs
-
-
-# transfer spudtr epochs to mne epochs with events
-def spudtr2mne_epochs(
-    epochs_df, eeg_streams, time, epoch_id, sfreq, mne_events, mne_event_id
+def spudtr_to_mne_epochs(
+    epochs_df,
+    eeg_streams,
+    epoch_id=None,
+    time=None,
+    time_unit=None,
+    mne_events=None,
+    mne_event_ids=None,
 ):
+    """construct mne.Epochs from a spudtr format epochs pandas.Dataframe
+    
+    Parameters
+    ----------
+    epochs_df : pandas.DataFrame
+        spudtr format epochs in rows (epoch x time stamp) and columns
+        (categories ... data streams). Epoch indices must be unique, time stamps are
+        integers, the same in each epoch. Categories are experimental variables,
+        string labels are allowed. Data stream columns hold the EEG (or other) data. 
 
-    montage = streams2mne_digmont(eeg_streams)
+    eeg_streams : list of str
+        column names of the data streams
 
-    # create mne epochs from EpochsArray and show them
-    info = mne.create_info(
-        montage.ch_names, sfreq=sfreq, ch_types="eeg", montage=montage
-    )
+    epoch_id : str
+        name of the epoch index
 
+    time : str
+        name of the time stamp index, e.g., "time_ms" 
+
+    time_unit : float
+        time stamp unit in seconds, e.g., 0.001 for milliseconds, 1.0
+        for seconds
+
+    mne_events : np.array of int, shape=(n, 3), optional
+        standard MNE event array: first column is the 0-base row index
+        of the event in epochs_df, second column is all 0's (legacy,
+        not used), third column is the integer event code at that
+        row. Negative event codes are unsafe.
+
+    mne_event_ids : dict, optional
+        keys and values are 1-1, keys string labels of the integer event codes
+
+    
+    Returns
+    -------
+    epochs : mne.Epochs
+
+    """
+
+    # check dataframe format
+    _epochs_QC(epochs_df, eeg_streams, epoch_id=epoch_id, time=time)
+
+    # no point to an event ids dict without the actual events
+    if mne_event_ids is not None and mne_events is None:
+        raise ValueError("mne_events must also be specified to use mne_event_ids")
+
+    # compute sfreq samples / second from the time-stamps. _epochs_QC should
+    # ensure regular sampling interval but check anyway ...
+    timestamps = epochs_df[time].unique()
+    sampling_interval = list(set((timestamps - np.roll(timestamps, 1))[1:]))
+    if len(sampling_interval) != 1:
+        ValueError(f"irregular sampling intervals in epochs_df: {sampling_interval}")
+    sfreq = 1.0 / (sampling_interval[0] * time_unit)  # samples per second
+
+    montage = _streams2mne_digmont(eeg_streams)
+    info = mne.create_info(montage.ch_names, sfreq=sfreq, ch_types="eeg")
+    info.set_montage(montage)  # for mne >0.19
+
+    tmin = epochs_df[time].min() * time_unit
     epochs_data = []
     # import pdb; pdb.set_trace()
     for epoch_i in epochs_df[epoch_id].unique():
         # epoch1 = epochs_df[info["ch_names"]][
-        epoch1 = epochs_df[montage.ch_names][
-            epochs_df.epoch_id == epoch_i
-        ].to_numpy()
+        epoch1 = epochs_df[montage.ch_names][epochs_df.epoch_id == epoch_i].to_numpy()
         epochs_data.append(epoch1.T)
     epochs = mne.EpochsArray(
-        epochs_data, info=info, events=mne_events, event_id=mne_event_id
+        epochs_data, info=info, tmin=tmin, events=mne_events, event_id=mne_event_ids,
     )
+
     return epochs
