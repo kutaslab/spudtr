@@ -68,10 +68,7 @@ def test_spudtr_to_mne_epochs():
     )
 
     epochs = mneutils.spudtr_to_mne_epochs(
-        epochs_df,
-        **epoch_params,
-        mne_events=mne_events,
-        mne_event_ids=mne_event_ids,
+        epochs_df, **epoch_params, mne_events=mne_events, mne_event_ids=mne_event_ids,
     )
     assert epochs.event_id == {
         "stim[cal]": 1,
@@ -83,12 +80,11 @@ def test_spudtr_to_mne_epochs():
     # 3. fail with event_id but no events
     with pytest.raises(ValueError) as excinfo:
         epochs = mneutils.spudtr_to_mne_epochs(
-            epochs_df,
-            **epoch_params,
-            mne_events=None,
-            mne_event_ids=mne_event_ids
+            epochs_df, **epoch_params, mne_events=None, mne_event_ids=mne_event_ids
         )
-    assert str(excinfo.value) == 'mne_events must also be specified to use mne_event_ids'
+    assert (
+        str(excinfo.value) == "mne_events must also be specified to use mne_event_ids"
+    )
 
 
 def test_categories2eventid():
