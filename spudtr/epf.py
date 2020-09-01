@@ -503,25 +503,23 @@ def fir_filter_epochs(
     # needs to know about epoch boundaries and times
     _epochs_QC(epochs_df, data_columns, epoch_id=epoch_id, time=time)
 
-    # build and apply the filter
-    taps = _design_firwin_filter(cutoff_hz, width_hz, ripple_db, sfreq, ftype, window)
-
-    # filt_epochs_df = _apply_firwin_filter(epochs_df, data_columns, taps)
-    filt_epochs_df = fir_filter_dt(
-        epochs_df,
-        data_columns,
+    _fparams = dict(
+        ftype=ftype,
         cutoff_hz=cutoff_hz,
         sfreq=sfreq,
-        ftype=ftype,
         width_hz=width_hz,
         ripple_db=ripple_db,
         window=window,
     )
 
-    # this trims edges in *each epoch*
+    # build and apply the filter
+    filt_epochs_df = fir_filter_dt(epochs_df, data_columns, **_fparams)
+
+    # this trims edges in *each epoch*, 1/2 length of the filter
     if trim_edges:
-        times = filt_epochs_df[time].unique()
+        taps = _design_firwin_filter(**_fparams)
         n_edge = int(np.floor(len(taps) / 2.0))
+        times = filt_epochs_df[time].unique()
         start_good = times[n_edge]  # first good sample
         stop_good = times[-(n_edge + 1)]  # last good sample
         qstr = f"{time} >= @start_good and {time} <= @stop_good"

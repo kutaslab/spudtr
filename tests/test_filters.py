@@ -33,7 +33,7 @@ def test_check_filter_params_obligatory(_ftype, _cutoff, _srate, _allow_defaults
 @pytest.mark.parametrize("_width_hz", [5.0, None, pytest.param("_nn", marks=xfve)])
 @pytest.mark.parametrize("_ripple_db", [53.0, None, pytest.param("_nn", marks=xfve)])
 @pytest.mark.parametrize("_window", ["kaiser", "hamming", "hann", "blackman"])
-def test_check_filter_params_optional(_width_hz, _ripple_db, _window):
+def test_check_filter_params_defaults(_width_hz, _ripple_db, _window):
     filt_params = filters.check_filter_params(
         ftype="lowpass",
         cutoff_hz=25.0,
@@ -49,7 +49,9 @@ def test__suggest_epoch_length():
     sfreq = 250
     ripple_db = 60
     width_hz = 4
-    N = filters._suggest_epoch_length(sfreq, ripple_db, width_hz)
+    N = filters._suggest_epoch_length(
+        sfreq=sfreq, width_hz=width_hz, ripple_db=ripple_db
+    )
     assert N == 230
 
 
@@ -64,11 +66,12 @@ def test__suggest_epoch_length():
 )
 @pytest.mark.parametrize("_window", (None, "kaiser", "hamming", "hann", "blackman"))
 def test_show_filter(_ftype, _cutoff_hz, _window):
-    cutoff_hz = 10.0
-    sfreq = 250
 
+    sfreq = 250
     width_hz = 5.0
     ripple_db = 60.0
+
+    print("test", locals())
     filters.show_filter(
         ftype=_ftype,
         cutoff_hz=_cutoff_hz,
@@ -128,30 +131,43 @@ def test_fir_filter_dt(_ftype, _cutoff_hz, _window):
 
 
 def test_mfreqz():
-    cutoff_hz = 10.0
-    width_hz = 5.0
     ripple_db = 60.0
     sfreq = 250
+
+    # low pass
+    cutoff_hz = 10.0
+    width_hz = 5.0
     ftype = "lowpass"
     window = "hamming"
-
     taps = filters._design_firwin_filter(
-        cutoff_hz, width_hz, ripple_db, sfreq, ftype, window
+        ftype=ftype,
+        cutoff_hz=cutoff_hz,
+        sfreq=sfreq,
+        width_hz=width_hz,
+        ripple_db=ripple_db,
+        window=window,
     )
-    fig1 = filters._mfreqz(taps, sfreq, cutoff_hz, width_hz, a=1)
+    _ = filters._mfreqz(
+        b=taps, a=1, cutoff_hz=cutoff_hz, sfreq=sfreq, width_hz=width_hz
+    )
+    assert len(taps) == 183
 
     # bandstop
     ftype = "bandstop"
     window = "hann"
     cutoff_hz = [18, 35]
     width_hz = 5
-    ripple_db = 60
-    sfreq = 250
     taps2 = filters._design_firwin_filter(
-        cutoff_hz, width_hz, ripple_db, sfreq, ftype, window
+        ftype=ftype,
+        cutoff_hz=cutoff_hz,
+        sfreq=sfreq,
+        width_hz=width_hz,
+        ripple_db=ripple_db,
+        window=window,
     )
-    fig2 = filters._mfreqz(taps2, sfreq, cutoff_hz, width_hz, a=1)
-    assert len(taps) == 183
+    _ = filters._mfreqz(
+        b=taps2, a=1, cutoff_hz=cutoff_hz, sfreq=sfreq, width_hz=width_hz,
+    )
 
 
 def test_impz():
@@ -163,81 +179,37 @@ def test_impz():
     window = "hamming"
 
     taps = filters._design_firwin_filter(
-        cutoff_hz, width_hz, ripple_db, sfreq, ftype, window
+        ftype=ftype,
+        sfreq=sfreq,
+        cutoff_hz=cutoff_hz,
+        width_hz=width_hz,
+        ripple_db=ripple_db,
+        window=window,
     )
-    fig = filters._impz(taps, a=1)
+    fig = filters._impz(b=taps, a=1)
     assert len(taps) == 183
 
 
-# @pytest.mark.parametrize(
-#     "test_arg",
-#     ["cutoff_hz", "width_hz", "ripple_db", "sfreq", "ftype", "window"],
-# )
-# def test_design_firwin_filter_args(test_arg):
-
-#     # usable values
-#     specs = dict(
-#         cutoff_hz=20,
-#         width_hz=5,
-#         ripple_db=60,
-#         sfreq=250,
-#         ftype="lowpass",
-#         window="kaiser",
-#     )
-#     specs[test_arg] = None
-#     try:
-#         taps = filters._design_firwin_filter(**specs)
-#     except ValueError as fail:
-#         assert str(fail) == f"{test_arg} is None, set a value"
-#         pytest.xfail()
-
-
-def test_design_firwin_filter():
-    ftype = "highpass"
-    window = "blackman"
-    cutoff_hz = 20
-    width_hz = 5
+@pytest.mark.parametrize(
+    "_ftype,_cutoff_hz,_width_hz,_window",
+    [
+        ("highpass", 20, 5, "blackman"),
+        ("highpass", 20, 4, "kaiser"),
+        ("bandpass", [22, 40], 5, "kaiser"),
+        ("bandpass", [22, 40], 5, "hann"),
+        ("bandstop", [18, 35], 5, "kaiser"),
+    ],
+)
+def test_design_firwin_filter(_ftype, _cutoff_hz, _width_hz, _window):
     ripple_db = 60
     sfreq = 250
-    # build and apply the filter
     taps = filters._design_firwin_filter(
-        cutoff_hz, width_hz, ripple_db, sfreq, ftype, window
-    )
-    assert len(taps) == 183
-
-    # add another test for N is even.
-    ftype = "highpass"
-    window = "kaiser"
-    width_hz = 4
-    ripple_db = 60
-    sfreq = 250
-    # build and apply the filter
-    taps2 = filters._design_firwin_filter(
-        cutoff_hz, width_hz, ripple_db, sfreq, ftype, window
-    )
-
-    ftype = "bandpass"
-    window = "kaiser"
-    cutoff_hz = [22, 40]
-    width_hz = 5
-    ripple_db = 60
-    sfreq = 250
-    taps3 = filters._design_firwin_filter(
-        cutoff_hz, width_hz, ripple_db, sfreq, ftype, window
-    )
-    window = "hann"
-    taps4 = filters._design_firwin_filter(
-        cutoff_hz, width_hz, ripple_db, sfreq, ftype, window
-    )
-
-    ftype = "bandstop"
-    window = "kaiser"
-    cutoff_hz = [18, 35]
-    width_hz = 5
-    ripple_db = 60
-    sfreq = 250
-    taps5 = filters._design_firwin_filter(
-        cutoff_hz, width_hz, ripple_db, sfreq, ftype, window
+        ftype=_ftype,
+        cutoff_hz=_cutoff_hz,
+        sfreq=sfreq,
+        width_hz=_width_hz,
+        ripple_db=ripple_db,
+        window=_window,
     )
 
 
@@ -261,6 +233,7 @@ def test__apply_firwin_filter_data():
     filt_data = filters._apply_firwin_filter_data(y, taps)
     assert len(taps) == 183
 
+    # test low pass fails when cutoff has two bounds
     freq_list = [0.2, 3]
     amplitude_list = [1.0, 1.0]
     sampling_freq = 250
@@ -314,26 +287,20 @@ def test_sins_test_data(_show_plot):
     assert len(t) == 375
 
 
-def test__trans_bwidth_ripple():
-    ftype = "bandstop"
-    window = "kaiser"
-    cutoff_hz = [18, 35]
+@pytest.mark.parametrize(
+    "_ft,_cthz,_win,_ripdb",
+    [
+        ("bandstop", [18, 35], "kaiser", 53),
+        ("highpass", 12.5, "hann", 44),
+        ("bandstop", [18, 35], "blackman", 74),
+    ],
+)
+def test__trans_bwidth_ripple2(_ft, _cthz, _win, _ripdb):
     sfreq = 250
-    width_hz, ripple_db = filters._trans_bwidth_ripple(cutoff_hz, sfreq, ftype, window)
-    assert ripple_db == 53
-
-    ftype = "highpass"
-    cutoff_hz = 12.5
-    window = "hann"
-
-    width_hz, ripple_db = filters._trans_bwidth_ripple(cutoff_hz, sfreq, ftype, window)
-    assert ripple_db == 44
-
-    window = "blackman"
-    ftype = "bandstop"
-    cutoff_hz = [18, 35]
-    width_hz, ripple_db = filters._trans_bwidth_ripple(cutoff_hz, sfreq, ftype, window)
-    assert ripple_db == 74
+    width_hz, ripple_db = filters._trans_bwidth_ripple(
+        ftype=_ft, cutoff_hz=_cthz, sfreq=sfreq, window=_win
+    )
+    assert ripple_db == _ripdb
 
 
 @pytest.mark.parametrize(
