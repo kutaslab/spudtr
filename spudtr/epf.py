@@ -119,7 +119,7 @@ def _hdf_read_epochs(epochs_f, h5_group, epoch_id=EPOCH_ID, time=TIME):
         columns in INDEX_NAMES are pd.MultiIndex axis 0
     """
     warnings.warn(
-        "_hdf_read_epochs() is unused and deprecated in spudtr.epf v0.0.9 and will be removed in v0.0.11",
+        "_hdf_read_epochs() is unused, untested, and deprecated in spudtr.epf v0.0.9 and will be removed in v0.0.11",
         DeprecationWarning,
     )
 

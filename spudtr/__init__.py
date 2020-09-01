@@ -70,10 +70,6 @@ def get_demo_df(filename, url=DATA_URL):
     import os
     import requests  # URL IO
 
-    # touch dir for TravisCI docs
-    if not DATA_DIR.exists():
-        DATA_DIR.mkdir()
-
     # shortcut if previously downloaded
     if (DATA_DIR / filename).exists():
         return pd.read_feather(DATA_DIR / filename)

@@ -221,8 +221,7 @@ def spudtr_to_mne_epochs(
     # ensure regular sampling interval but check anyway ...
     timestamps = epochs_df[time].unique()
     sampling_interval = list(set((timestamps - np.roll(timestamps, 1))[1:]))
-    if len(sampling_interval) != 1:
-        ValueError(f"irregular sampling intervals in epochs_df: {sampling_interval}")
+    assert len(sampling_interval) == 1  # should be guaranteed by _epochs_QC
     sfreq = 1.0 / (sampling_interval[0] * time_unit)  # samples per second
 
     montage = _streams2mne_digmont(eeg_streams)
