@@ -73,6 +73,8 @@ def get_demo_df(filename, url=DATA_URL):
     # shortcut if previously downloaded
     if (DATA_DIR / filename).exists():
         return pd.read_feather(DATA_DIR / filename)
+    else:
+        DATA_DIR.mkdir(parents=True, exist_ok=True)
 
     # otherwise download
     print(f"downloading ./spudtr/data/{filename} from {url} ... please wait")
