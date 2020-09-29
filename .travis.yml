@@ -60,9 +60,9 @@ deploy:
     skip_cleanup: true
     script: bash ./ci/ghpages_upload.sh
     on:
-      # branch: master   # for normal operation
+      branch: master   # for normal operation
       condition: $PYV == "3.8"
-      all_branches: true  # for testing deploy only
+      # all_branches: true  # for testing deploy only
 
   # conda_upload.sh switches anaconda upload on $TRAVIS_BRANCH
   #    master M.N.P or M.N.P.devX -> /pre-release
