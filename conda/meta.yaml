@@ -1,10 +1,10 @@
-{% set version = "0.0.10.dev1" %}
-# {% set py_pin = "3.6" %}  # pins for mkpy and fitgrid
-# {% set np_pin = "1.16.4" %}
+# deprecated {% set version = "0.0.10.dev1" %} 
+# deprecated {% set py_pin = "3.6" %}  # old pins for mkpy and fitgrid
+# deprecated {% set np_pin = "1.16.4" %}
 
 package:
   name: spudtr
-  version: {{ version }}
+  version: {{ data.get('version') }}
 
 source:
   # path: ../
@@ -18,18 +18,15 @@ requirements:
   # build ... all moved to host
   host:
     - python {{ python }}
-    - pandas >=1.0
-    - pyarrow >=1.0
-    - requests 
     - pip
 
   run:
     - python {{ python }}
-    - numpy 
+    - numpy
     - numpy-base
     - scipy
     - pandas >=1.0
-    - pyarrow >=1.0  # else defaults to 0.11.1 which crashes
+    - pyarrow >=1.0
     - matplotlib
     - bottleneck
     - pytables
