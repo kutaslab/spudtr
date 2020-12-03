@@ -27,3 +27,6 @@ jobs:
           PY_VER: ${{ matrix.pyver }}
         run: echo ${PACKAGE_NAME} ${PY_VER}
       - run: conda create -n pyenv_${PY_VER} python=${PY_VER}
+      - run: conda activate pyenv_${PY_VER}
+      - run: conda info -a
+      - run: conda list
