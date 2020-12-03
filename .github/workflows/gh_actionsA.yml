@@ -13,7 +13,7 @@ jobs:
       - run: hash -r
       - run: conda config --set always_yes yes --set changeps1 no
       - run: conda info -a
-      - run: printenv PACKAGE_NAME PYVER
+      - run: printenv PACKAGE_NAME
 
   build:
     needs: setup
