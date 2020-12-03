@@ -24,6 +24,6 @@ jobs:
     steps:
       - name: set env
         env:
-          PYVER: ${{ matrix.pyver }}
-        run: printenv PACKAGE_NAME PYVER
-      - run: conda create -n pyenv_${PYV} python=${PYV}
+          PY_VER: ${{ matrix.pyver }}
+        run: printenv PACKAGE_NAME PY_VER
+      - run: conda create -n pyenv_${PY_VER} python=${PY_VER}
