@@ -3,16 +3,10 @@ on: [push]
 env:
   PACKAGE_NAME: spudtr  # for the conda_upload.sh deploy script
 jobs:
-  was_travis_ci:
+  setup:
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        pyver: ["3.6", "3.7", "3.8"]
     steps:
       - uses: actions/checkout@v2
-      - uses: actions/setup-node@v1
-      - name:
-        env: ${{ matrix.pyver }}
       - run: wget https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh -O miniconda.sh
       - run: bash miniconda.sh -b -p $HOME/miniconda
       - run: source $HOME/miniconda/etc/profile.d/conda.sh && conda activate
@@ -21,3 +15,13 @@ jobs:
       - run: conda info -a
       - run: printenv PACKAGE_NAME PYVER
 
+  build:
+    needs: setup
+    strategy:
+      matrix:
+        pyver: ["3.6", "3.7", "3.8"]
+    steps:
+      - name: set env
+        env:
+          PYVER: ${{ matrix.pyver }}
+        run: printenv PACKAGE_NAME PYVER
