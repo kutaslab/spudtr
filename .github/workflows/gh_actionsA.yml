@@ -11,7 +11,7 @@ jobs:
           bash -l {0}
     strategy:
       matrix:
-        pyver: ["3.6", "3.7", "3.8"]
+        pyver: ["3.6"] # , "3.7", "3.8"]
     env:
       PY_VER: ${{ matrix.pyver }}
     steps:
@@ -20,15 +20,15 @@ jobs:
       - run: wget https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh -O miniconda.sh
       - run: bash miniconda.sh -b -p $HOME/miniconda
       - run: source $HOME/miniconda/etc/profile.d/conda.sh
-      - run: conda init
-      - run: conda activate
-      - run: hash -r
+      - run: printenv | sort
       - run: conda config --set always_yes yes --set changeps1 no
-      - run: conda info -a
-      - run: printenv PACKAGE_NAME
-      - run: echo $PACKAGE_NAME $PY_VER
-      - run: conda create -n "pyenv_$PY_VER" "python=$PY_VER"
-      - run: conda env list
+      - run: conda activate
+#      - run: hash -r
+#      - run: conda info -a
+#      - run: printenv PACKAGE_NAME
+#      - run: echo $PACKAGE_NAME $PY_VER
+#      - run: conda create -n "pyenv_$PY_VER" "python=$PY_VER"
+#      - run: conda env list
       # - run: conda deactivate
-      - run: conda activate "pyenv_$PY_VER"
-      - run: conda list
+#      - run: conda activate "pyenv_$PY_VER"
+#      - run: conda list
