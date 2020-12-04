@@ -1,7 +1,8 @@
 name: gh_actionsA
 on: [push]
 env:
-  PACKAGE_NAME: spudtr  # for the conda_upload.sh deploy script
+  PACKAGE_NAME: spudtr  # for conda_upload.sh deploy script
+  CONDA_BLD: file:///usr/share/miniconda/envs/builder/conda-bld
 
 defaults:
   run:
@@ -9,7 +10,6 @@ defaults:
       bash -l {0}
 
 jobs:
-  # 1. 
   package-and-test:
     runs-on: ubuntu-latest
     strategy:
@@ -17,7 +17,7 @@ jobs:
         pyver: ["3.6", "3.7", "3.8"]
     env:
       PY_VER: ${{ matrix.pyver }}
-      CONDA_BLD: file:///usr/share/miniconda/envs/builder/conda-bld
+
     steps:
       - uses: actions/checkout@v2
       - uses: conda-incubator/setup-miniconda@v2
@@ -25,21 +25,17 @@ jobs:
           python-version: ${{ matrix.python-version }}
           activate-environment: builder
 
-      - name: set up for conda building
+      - name: conda build 
         run: |
           conda config --set always_yes yes --set changeps1 no
           conda info -a
           conda install -q conda-build conda-verify
-
-      - name: build local conda package
-        run: |
           conda build --python=$PY_VER -c defaults -c conda-forge conda
 
-      - name: install
-        run: |
-          conda create -n pyenv_$PY_VER python=$PY_VER $PACKAGE_NAME -c $CONDA_BLD -c defaults -c conda-forge
+      - name: conda create env and install
+        run: conda create -n pyenv_$PY_VER python=$PY_VER $PACKAGE_NAME -c $CONDA_BLD -c defaults -c conda-forge
 
-      - name: test
+      - name: black and pytest
         run: |
           conda activate pyenv_$PY_VER
           conda install -q black pytest pytest-cov
@@ -48,3 +44,6 @@ jobs:
           python -c 'import numpy; numpy.show_config()'
           black --check --verbose .
           pytest --cov=$PACKAGE_NAME
+
+  deploy:
+    
