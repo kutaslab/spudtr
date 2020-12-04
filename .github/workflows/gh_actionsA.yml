@@ -5,6 +5,10 @@ env:
 jobs:
   build:
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell:
+          bash -1 {0}
     strategy:
       matrix:
         pyver: ["3.6", "3.7", "3.8"]
@@ -12,13 +16,13 @@ jobs:
       PY_VER: ${{ matrix.pyver }}
     steps:
       - uses: actions/checkout@v2
-      - uses: conda-incubator/setup-miniconda@v2
-      # - run: wget https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh -O miniconda.sh
-      # - run: bash miniconda.sh -b -p $HOME/miniconda
-      # - run: conda init
-      # - run: source $HOME/miniconda/etc/profile.d/conda.sh
+      # - uses: conda-incubator/setup-miniconda@v2
+      - run: wget https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh -O miniconda.sh
+      - run: bash miniconda.sh -b -p $HOME/miniconda
+      - run: conda init
+      - run: source $HOME/miniconda/etc/profile.d/conda.sh
+      - run: conda activate
       - run: hash -r
-      # - run: conda activate
       - run: conda config --set always_yes yes --set changeps1 no
       - run: conda info -a
       - run: printenv PACKAGE_NAME
