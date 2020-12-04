@@ -73,7 +73,7 @@ jobs:
           PKG_VERSION=`echo $TARBALL | sed -n "s/.*${PACKAGE_NAME}-\(.\+\)-.*/\1/p"`
           PKG_MNP=`echo $PKG_VERSION | sed -n "s/\(\([0-9]\+\.\)\{1,2\}[0-9]\+\).*/\1/p"`
           if [[ $FAKE_GITHUB_REF =~ ^refs/heads/dev$ && $PKG_VERSION =~ ^([0-9]+\.){3}dev[0-9]+$ ]]; then CONDA_LABEL="pre-release"; fi
-          if [[ $FAKE_GITHUB_REF =~ ^refs/tags/v([0-9]+\.){2}[0-9]+$ && $PKG_VERSION =~ ^([0-9]+\.){2}\.[0-9]+$ ]]; then CONDA_LABEL="main"; fi
+          if [[ $FAKE_GITHUB_REF =~ ^refs/tags/v([0-9]+\.){2}[0-9]+$ && $PKG_VERSION == $PKG_MNP ]]; then CONDA_LABEL="main"; fi
           export CONDA_LABEL TARBALL PKG_VERSION PKG_MNP
           printenv | sort
 
