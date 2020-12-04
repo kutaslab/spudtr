@@ -14,15 +14,19 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        pyver: ["3.6", "3.7", "3.8"]
+        py_M: [3]  # major
+        py_N: [6, 7, 8]  # minor
     env:
-      PY_VER: ${{ matrix.pyver }}
+      # conda builder want python version M.N with the decimal
+      # conda tarball package naming convention is pyMN
+      PYTHON_M_N: format("{0}.{1}", ${{ matrix.py_M }}, ${{ matrix.py_N }})
+      PYMN: format("py{0}{1}", ${{ matrix.py_M }}, ${{ matrix.py_N }})
     steps:
       - uses: actions/checkout@v2
-      # v2 or SHA for security, v2.0.1 73b9a8098aade40363e43af145303c23542ccb97
+      # vM or SHA for security, v2.0.1 73b9a8098aade40363e43af145303c23542ccb97
       - uses: conda-incubator/setup-miniconda@73b9a8098aade40363e43af145303c23542ccb97
         with:
-          python-version: ${{ matrix.python-version }}
+          python-version: $PYTHON_M_N
           activate-environment: builder
 
       - name: conda setup
@@ -34,17 +38,18 @@ jobs:
         run: |
           echo "github_ref" $GITHUB_REF
           conda info -a
+          printenv | sort
 
       - name: conda build
         run: |
-          conda build --python=$PY_VER -c defaults -c conda-forge conda
+          conda build --python=$PYTHON_M_N -c defaults -c conda-forge conda
 
       - name: conda create env and install
-        run: conda create -n pyenv_$PY_VER python=$PY_VER $PACKAGE_NAME -c $CONDA_BLD -c defaults -c conda-forge
+        run: conda create -n env_$PYMN python=$PYTHON_M_N $PACKAGE_NAME -c $CONDA_BLD -c defaults -c conda-forge
 
       - name: black and pytest
         run: |
-          conda activate pyenv_$PY_VER
+          conda activate env_$PYMN
           conda install -q black pytest pytest-cov
           conda list
           lscpu
@@ -54,7 +59,7 @@ jobs:
 
       - name: conda convert and upload
         run: |
-          ls -l -R $CONDA_BLD/linux-64/$PACKAGE_NAME-*.tar.bz2
+          ls -l -R $CONDA_BLD/linux-64/$PACKAGE_NAME-*-$PYMN*.tar.bz2
 
   # deploy:
   #   needs: package-and-test
