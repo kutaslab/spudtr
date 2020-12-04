@@ -68,7 +68,8 @@ jobs:
 
       - name: conda upload
         run: |
-          version=`echo $tarball | sed -n "s/.*${PACKAGE_NAME}-\(.\+\)-.*/\1/p"`
+          TARBALL=`/bin/ls -1 $CONDA_BLD_PATH/linux-64/${PACKAGE_NAME}-*-*.tar.bz2`
+          version=`echo $TARBALL | sed -n "s/.*${PACKAGE_NAME}-\(.\+\)-.*/\1/p"`
           mnp=`echo $version | sed -n "s/\(\([0-9]\+\.\)\{1,2\}[0-9]\+\).*/\1/p"`
           label="dry-run"
           echo "github ref" $GITHUB_REF
