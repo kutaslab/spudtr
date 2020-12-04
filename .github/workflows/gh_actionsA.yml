@@ -20,7 +20,7 @@ jobs:
       BLD_PATH: $CONDA_BLD/${{ matrix.pyver }}
     steps:
       - uses: actions/checkout@v2
-        # v2 or SHA for security, v2.0.1 73b9a8098aade40363e43af145303c23542ccb97
+      # v2 or SHA for security, v2.0.1 73b9a8098aade40363e43af145303c23542ccb97
       - uses: conda-incubator/setup-miniconda@73b9a8098aade40363e43af145303c23542ccb97
         with:
           python-version: ${{ matrix.python-version }}
@@ -28,9 +28,9 @@ jobs:
 
       - name: show contexts
         run: |
-          echo "github_ref" $GITHUB_REF          
+          echo "github_ref" $GITHUB_REF
 
-      - name: conda build 
+      - name: conda build
         run: |
           conda config --set always_yes yes --set changeps1 no
           conda config --set bld_path $BLD_PATH
@@ -39,7 +39,7 @@ jobs:
           conda build --python=$PY_VER -c defaults -c conda-forge conda
 
       - name: conda create env and install
-       run: conda create -n pyenv_$PY_VER python=$PY_VER $PACKAGE_NAME -c $CONDA_BLD -c defaults -c conda-forge
+        run: conda create -n pyenv_$PY_VER python=$PY_VER $PACKAGE_NAME -c $CONDA_BLD -c defaults -c conda-forge
 
       - name: black and pytest
         run: |
