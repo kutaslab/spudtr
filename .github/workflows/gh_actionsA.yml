@@ -46,4 +46,10 @@ jobs:
           pytest --cov=$PACKAGE_NAME
 
   deploy:
-    
+    needs: package-and-test
+    name: codecov
+    run:
+      printenv | sort
+      conda env list
+      conda list
+      ls -R $CONDA_BLD
