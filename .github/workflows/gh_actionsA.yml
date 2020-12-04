@@ -48,9 +48,9 @@ jobs:
   deploy:
     needs: package-and-test
     steps:
-      name: codecov
-      run:
-        printenv | sort
-        conda env list
-        conda list
-        ls -R $CONDA_BLD
+      - name: codecov
+        run:
+          printenv | sort
+          conda env list
+          conda list
+          ls -R $CONDA_BLD
