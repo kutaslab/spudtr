@@ -12,18 +12,19 @@ jobs:
       PY_VER: ${{ matrix.pyver }}
     steps:
       - uses: actions/checkout@v2
-      - run: wget https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh -O miniconda.sh
-      - run: bash miniconda.sh -b -p $HOME/miniconda
+      - uses: conda-incubator/setup-miniconda@v2
+      # - run: wget https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh -O miniconda.sh
+      # - run: bash miniconda.sh -b -p $HOME/miniconda
       # - run: conda init
-      - run: source $HOME/miniconda/etc/profile.d/conda.sh
+      # - run: source $HOME/miniconda/etc/profile.d/conda.sh
       - run: hash -r
-      - run: conda activate
+      # - run: conda activate
       - run: conda config --set always_yes yes --set changeps1 no
       - run: conda info -a
       - run: printenv PACKAGE_NAME
       - run: echo $PACKAGE_NAME $PY_VER
       - run: conda create -n "pyenv_$PY_VER" "python=$PY_VER"
       - run: conda env list
-      - run: conda deactivate
+      # - run: conda deactivate
       - run: conda activate "pyenv_$PY_VER"
       - run: conda list
