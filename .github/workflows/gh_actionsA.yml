@@ -2,7 +2,7 @@ name: gh_actionsA
 on: [push]
 env:
   PACKAGE_NAME: spudtr  # for conda_upload.sh deploy script
-  CONDA_BLD: file:///usr/share/miniconda/envs/builder/conda-bld
+  CONDA_BLD_PATH: /usr/share/miniconda/envs/builder/conda-bld
 
 defaults:
   run:
@@ -25,33 +25,23 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
-      - run: printenv | sort
-
-      # vM or SHA for security, v2.0.1 73b9a8098aade40363e43af145303c23542ccb97
+      # use @vM or @SHA for security, this is v2.0.1
       - uses: conda-incubator/setup-miniconda@73b9a8098aade40363e43af145303c23542ccb97
         with:
           python-version: ${{ env.PYTHON_M_N }}
           activate-environment: builder
 
-      - name: conda setup
+      - name: conda build
         run: |
           conda config --set always_yes yes --set changeps1 no
           conda install -q conda-build conda-verify
-
-      - name: show context info
-        run: |
-          echo "github_ref" $GITHUB_REF
           conda info -a
-          printenv | sort
-
-      - name: conda build
-        run: |
           conda build --python=$PYTHON_M_N -c defaults -c conda-forge conda
 
       - name: conda create env and install
-        run: conda create -n env_$PYMN python=$PYTHON_M_N $PACKAGE_NAME -c $CONDA_BLD -c defaults -c conda-forge
+        run: conda create -n env_$PYMN python=$PYTHON_M_N $PACKAGE_NAME -c file://$CONDA_BLD_PATH -c defaults -c conda-forge
 
-      - name: black and pytest
+      - name: pytest 
         run: |
           conda activate env_$PYMN
           conda install -q black pytest pytest-cov
@@ -61,9 +51,12 @@ jobs:
           # black --check --verbose .
           # pytest --cov=$PACKAGE_NAME
 
-      - name: conda convert and upload
+      - name: conda convert 
         run: |
-          ls -l -R $CONDA_BLD/linux-64/$PACKAGE_NAME-*-$PYMN*.tar.bz2
+          ls -l -R $CONDA_BLD_PATH/linux-64/$PACKAGE_NAME-*-$PYMN*.tar.bz2
+          mkdir /tmp/$PYMN/linux-64
+          cp $CONDA_BLD_PATH/linux-64/$PACKAGE_NAME-*-$PYMN*.tar.bz2 /tmp/$PYMN/linux-64
+          conda convert -p osx-64 -p win-64 /tmp/$PYMN/linux-64/*.tar.bz -o /tmp/$PYMN
 
   # deploy:
   #   needs: package-and-test
