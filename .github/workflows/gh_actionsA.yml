@@ -3,7 +3,7 @@ on: [push]
 env:
   PACKAGE_NAME: spudtr  # for conda_upload.sh deploy script
   CONDA_BLD_PATH: /usr/share/miniconda/envs/builder/conda-bld
-  CONDA_LABEL="dry-run"  # default
+  CONDA_LABEL: "dry-run"  # default
 
 defaults:
   run:
