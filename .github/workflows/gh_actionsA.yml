@@ -19,8 +19,9 @@ jobs:
     env:
       # conda builder want python version M.N with the decimal
       # conda tarball package naming convention is pyMN
-      PYTHON_M_N: ${{ format("{0}.{1}", ${{ matrix.py_M }}, ${{ matrix.py_N }}) }}
-      PYMN: ${{ format("py{0}{1}", ${{ matrix.py_M }}, ${{ matrix.py_N }}) }}
+      PYTHON_M_N: ${{ format('{0}.{1}', ${{ matrix.py_M }}, ${{ matrix.py_N }}) }}
+      PYMN: ${{ format('py{0}{1}', ${{ matrix.py_M }}, ${{ matrix.py_N }}) }}
+
     steps:
       - uses: actions/checkout@v2
 
