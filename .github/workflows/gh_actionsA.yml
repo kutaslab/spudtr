@@ -51,7 +51,7 @@ jobs:
           # for testing 
           mkdir -p $CONDA_BLD_PATH/linux-64
           #touch $CONDA_BLD_PATH/linux-64/$PACKAGE_NAME-0.0.0.dev0-${PYMN}_dummy.tar.bz2
-          touch $CONDA_BLD_PATH/linux-64/$PACKAGE_NAME-0.0.0-$PYMN_$GITHUB_SSHA.tar.bz2
+          touch $CONDA_BLD_PATH/linux-64/$PACKAGE_NAME-0.0.0-${PYMN}_${GITHUB_SSHA}.tar.bz2
           ls -l -R $CONDA_BLD_PATH/linux-64
 
       # - name: conda create env and install
