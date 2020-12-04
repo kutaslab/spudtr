@@ -24,7 +24,7 @@ jobs:
           python-version: ${{ matrix.python-version }}
           activate-environment: builder
 
-      - name: setup 
+      - name: set up for conda building
         shell: bash -l {0}
         run: |
           conda config --set always_yes yes --set changeps1 no
@@ -40,4 +40,5 @@ jobs:
         shell: bash -l {0}
         run: |
           conda activate pyenv_$PY_VER
+          conda install black pytest pytest-cov
           conda list
