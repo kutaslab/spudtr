@@ -25,20 +25,20 @@ jobs:
           activate-environment: builder
 
       - name: set up for conda building
-        shell: bash -l {0}
         run: |
           conda config --set always_yes yes --set changeps1 no
           conda info -a
           conda install -q conda-build conda-verify
 
-      - name: build and install package
-        shell: bash -l {0}
+      - name: build local conda package
         run: |
           conda build --python=$PY_VER -c defaults -c conda-forge conda
+
+      - name: install
+        run: |
           conda create -n pyenv_$PY_VER python=$PY_VER $PACKAGE_NAME -c local -c defaults -c conda-forge
 
       - name: test
-        shell: bash -l {0}
         run: |
           conda activate pyenv_$PY_VER
           conda install -q black pytest pytest-cov
