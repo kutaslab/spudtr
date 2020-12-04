@@ -10,7 +10,7 @@ defaults:
       bash -l {0}
 
 jobs:
-  conda flow::
+  conda flow:
     runs-on: ubuntu-latest
     strategy:
       matrix:
