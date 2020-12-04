@@ -19,8 +19,8 @@ jobs:
     env:
       # conda builder want python version M.N with the decimal
       # conda tarball package naming convention is pyMN
-      PYTHON_M_N: format("{0}.{1}", ${{ matrix.py_M }}, ${{ matrix.py_N }})
-      PYMN: format("py{0}{1}", ${{ matrix.py_M }}, ${{ matrix.py_N }})
+      PYTHON_M_N: ${{ format("{0}.{1}", ${{ matrix.py_M }}, ${{ matrix.py_N }}) }}
+      PYMN: ${{ format("py{0}{1}", ${{ matrix.py_M }}, ${{ matrix.py_N }}) }}
     steps:
       - uses: actions/checkout@v2
 
@@ -29,7 +29,7 @@ jobs:
       # vM or SHA for security, v2.0.1 73b9a8098aade40363e43af145303c23542ccb97
       - uses: conda-incubator/setup-miniconda@73b9a8098aade40363e43af145303c23542ccb97
         with:
-          python-version: "$PYTHON_M_N"
+          python-version: ${{ env.PYTHON_M_N }}
           activate-environment: builder
 
       - name: conda setup
