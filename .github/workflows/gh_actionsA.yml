@@ -2,13 +2,16 @@ name: gh_actionsA
 on: [push]
 env:
   PACKAGE_NAME: spudtr  # for the conda_upload.sh deploy script
+
+defaults:
+  run:
+    shell:
+      bash -l {0}
+
 jobs:
-  build:
+  # 1. 
+  setup:
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        shell:
-          bash -l {0}
     strategy:
       matrix:
         pyver: ["3.6"] # , "3.7", "3.8"]
@@ -31,4 +34,11 @@ jobs:
 #      - run: conda env list
       # - run: conda deactivate
 #      - run: conda activate "pyenv_$PY_VER"
-#      - run: conda list
+  #      - run: conda list
+
+  # 2. 
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - run: printenv | sort
+
