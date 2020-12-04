@@ -44,9 +44,8 @@ jobs:
       - name: black and pytest
         run: |
           conda activate pyenv_$PY_VER
+          conda install -q black pytest pytest-cov
           conda list
-#          conda install -q black pytest pytest-cov
-#          conda list
 #          lscpu
 #          python -c 'import numpy; numpy.show_config()'
 #          black --check --verbose .
