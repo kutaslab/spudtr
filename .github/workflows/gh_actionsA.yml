@@ -64,7 +64,14 @@ jobs:
           mkdir -p /tmp/$PYMN/linux-64
           cp $CONDA_BLD_PATH/linux-64/$PACKAGE_NAME-*-$PYMN*.tar.bz2 /tmp/$PYMN/linux-64
           ls -l -R /tmp/$PYMN
-#          conda convert -p osx-64 -p win-64 /tmp/$PYMN/linux-64/*.tar.bz -o /tmp/$PYMN
+          # conda convert -p osx-64 -p win-64 /tmp/$PYMN/linux-64/*.tar.bz -o /tmp/$PYMN
+
+      - name: conda upload
+        run: |
+          version=`echo $tarball | sed -n "s/.*${PACKAGE_NAME}-\(.\+\)-.*/\1/p"`
+          mnp=`echo $version | sed -n "s/\(\([0-9]\+\.\)\{1,2\}[0-9]\+\).*/\1/p"`
+          label="dry-run"
+          echo "github ref" $GITHUB_REF
 
   # deploy:
   #   needs: package-and-test
