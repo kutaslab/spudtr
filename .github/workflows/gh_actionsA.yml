@@ -24,7 +24,7 @@ jobs:
       # conda tarball package naming convention is pyMN
       PYTHON_M_N: ${{ format('{0}.{1}', matrix.py_M , matrix.py_N) }}
       PYMN: ${{ format('py{0}{1}', matrix.py_M, matrix.py_N) }}
-      GIT_SSHA: ${{ format("g{0:8}", env.GIT_SHA)}}
+      GIT_SSHA: ${{ format('g{0:8}', env.GIT_SHA)}}
       # for testing only 
       # FAKE_GITHUB_REF: ${{ matrix.fake_github_ref }}
     steps:
