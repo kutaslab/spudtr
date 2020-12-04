@@ -47,6 +47,7 @@ jobs:
 
   deploy:
     needs: package-and-test
+    runs-on: ubuntu-latest
     steps:
       - name: codecov
         run:
