@@ -10,7 +10,7 @@ defaults:
 
 jobs:
   # 1. 
-  setup:
+  package-and-test:
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -34,9 +34,13 @@ jobs:
         run: |
           conda build --python=$PY_VER -c defaults -c conda-forge conda
 
+        # /usr/share/miniconda/envs/builder/conda-bld
       - name: install
+        # run: |
+        #  conda create -n pyenv_$PY_VER python=$PY_VER $PACKAGE_NAME -c local -c defaults -c conda-forge
         run: |
-          conda create -n pyenv_$PY_VER python=$PY_VER $PACKAGE_NAME -c local -c defaults -c conda-forge
+          conda create -n pyenv_$PY_VER python=$PY_VER $PACKAGE_NAME -c /usr/share/miniconda/envs/builder/conda-bld -c defaults -c conda-forge
+
 
       - name: test
         run: |
