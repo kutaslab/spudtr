@@ -24,10 +24,14 @@ jobs:
       # conda tarball package naming convention is pyMN
       PYTHON_M_N: ${{ format('{0}.{1}', matrix.py_M , matrix.py_N) }}
       PYMN: ${{ format('py{0}{1}', matrix.py_M, matrix.py_N) }}
-      GIT_SSHA: ${{ format('g{0:8s}', github.sha) }}
+      GIT_SSHA: ${GITHUB_SHA:0:8}
       # for testing only 
       # FAKE_GITHUB_REF: ${{ matrix.fake_github_ref }}
+
     steps:
+
+      # - id: get-github-shorthash
+      #  run: echo "::set-output name=git_ssha::
       - name: env dump
         run: printenv | sort
 
