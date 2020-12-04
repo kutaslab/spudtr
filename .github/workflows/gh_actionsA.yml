@@ -1,10 +1,6 @@
 name: gh_actionsA
 on: [push]
 env:
-  FAKE_GITHUB_REF: /refs/heads/dev
-  # FAKE_GITHUB_REF: /refs/head/not_dev
-  # FAKE_GITHUB_REF: /refs/tags/v0.5.0
-
   PACKAGE_NAME: spudtr  # for conda_upload.sh deploy script
   CONDA_BLD_PATH: /usr/share/miniconda/envs/builder/conda-bld
   CONDA_LABEL: dry-run  # default
@@ -20,7 +16,9 @@ jobs:
     strategy:
       matrix:
         py_M: [3]  # major
-        py_N: [6, 7, 8]  # minor
+        #py_N: [6, 7, 8]  # minor
+        py_N: [8]  # minor
+        FAKE_GITHUB_REF: ["refs/heads/dev", "refs/heads/not_dev", "refs/tags/v0.0.0"]
     env:
       # conda builder want python version M.N with the decimal
       # conda tarball package naming convention is pyMN
