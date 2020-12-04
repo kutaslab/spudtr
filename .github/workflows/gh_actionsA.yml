@@ -19,26 +19,21 @@ jobs:
       PY_VER: ${{ matrix.pyver }}
     steps:
       - uses: actions/checkout@v2
-      # - uses: conda-incubator/setup-miniconda@v2
-      - run: wget https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh -O miniconda.sh
-      - run: bash miniconda.sh -b -p $HOME/miniconda
-      - run: source $HOME/miniconda/etc/profile.d/conda.sh
-      - run: printenv | sort
+      - uses: conda-incubator/setup-miniconda@v2
+      # - run: wget https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh -O miniconda.sh
+      # - run: bash miniconda.sh -b -p $HOME/miniconda
+      # - run: source $HOME/miniconda/etc/profile.d/conda.sh
+      #- run: printenv | sort
       - run: conda config --set always_yes yes --set changeps1 no
-      - run: conda activate
-#      - run: hash -r
-#      - run: conda info -a
-#      - run: printenv PACKAGE_NAME
-#      - run: echo $PACKAGE_NAME $PY_VER
-#      - run: conda create -n "pyenv_$PY_VER" "python=$PY_VER"
-#      - run: conda env list
-      # - run: conda deactivate
-#      - run: conda activate "pyenv_$PY_VER"
-  #      - run: conda list
+      # - run: conda activate
+      - run: hash -r
+      - run: conda info -a
+      - run: printenv PACKAGE_NAME
+      - run: echo $PACKAGE_NAME $PY_VER
+      - run: conda create -n "pyenv_$PY_VER" "python=$PY_VER"
+      - run: conda env list
+      - run: conda deactivate
+      - run: conda activate "pyenv_$PY_VER"
+      - run: conda list
 
-  # 2. 
-  build:
-    runs-on: ubuntu-latest
-    steps:
-      - run: printenv | sort
 
