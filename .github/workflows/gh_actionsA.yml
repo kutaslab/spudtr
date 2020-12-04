@@ -20,21 +20,17 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - uses: conda-incubator/setup-miniconda@v2
-      # - run: wget https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh -O miniconda.sh
-      # - run: bash miniconda.sh -b -p $HOME/miniconda
-      # - run: source $HOME/miniconda/etc/profile.d/conda.sh
-      #- run: printenv | sort
-      - run: conda config --set always_yes yes --set changeps1 no
-      # - run: conda activate
-      - run: hash -r
-      - run: conda info -a
-      - run: printenv PACKAGE_NAME
-      - run: echo $PACKAGE_NAME $PY_VER
-      - run: conda create -n "pyenv_$PY_VER" "python=$PY_VER" numpy
-      - run: conda env list
-      - run: conda deactivate
-      - run: conda activate "pyenv_$PY_VER"
-      - run: conda env list
-      - run: conda list
-
-
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: build
+        shell: bash -l {0}
+        run: |
+          conda config --set always_yes yes --set changeps1 no
+          hash -r
+          conda info -a
+          printenv PACKAGE_NAME
+          echo $PACKAGE_NAME $PY_VER
+          conda create -n "pyenv_$PY_VER" "python=$PY_VER"
+          conda env list
+          conda activate "pyenv_$PY_VER"
+          conda env list
