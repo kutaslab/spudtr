@@ -22,15 +22,16 @@ jobs:
       - uses: conda-incubator/setup-miniconda@v2
         with:
           python-version: ${{ matrix.python-version }}
+          activate-environment: builder
 
-      - name: build
+      - name: setup 
         shell: bash -l {0}
         run: |
           conda config --set always_yes yes --set changeps1 no
-          conda create -n "pyenv_$PY_VER" "python=$PY_VER"
 
       - name: test
         shell: bash -l {0}
         run: |
           conda activate "pyenv_$PY_VER"
-          conda env list
+          conda create -n "pyenv_$PY_VER" "python=$PY_VER" numpy pandas -c defaults -c conda-forge
+          conda list
