@@ -18,13 +18,16 @@ jobs:
         py_M: [3]  # major
         #py_N: [6, 7, 8]  # minor
         py_N: [8]  # minor
-        fake_github_ref: ["refs/heads/dev", "refs/heads/not_dev", "refs/tags/v0.0.0"]
+        # for testing only 
+        # fake_github_ref: ["refs/heads/dev", "refs/heads/not_dev", "refs/tags/v0.0.0"]
     env:
       # conda builder want python version M.N with the decimal
       # conda tarball package naming convention is pyMN
       PYTHON_M_N: ${{ format('{0}.{1}', matrix.py_M , matrix.py_N) }}
       PYMN: ${{ format('py{0}{1}', matrix.py_M, matrix.py_N) }}
-      FAKE_GITHUB_REF: ${{ matrix.fake_github_ref }}
+
+      # for testing only 
+      # FAKE_GITHUB_REF: ${{ matrix.fake_github_ref }}
     steps:
       - name: env dump
         run: printenv | sort
@@ -74,10 +77,10 @@ jobs:
           PKG_MNP=`echo $PKG_VERSION | sed -n "s/\(\([0-9]\+\.\)\{1,2\}[0-9]\+\).*/\1/p"`
 
           # M.N.P.devX on branch dev upload to conda label pre-release
-          if [[ $FAKE_GITHUB_REF =~ ^refs/heads/dev$ && $PKG_VERSION =~ ^([0-9]+\.){3}dev[0-9]+$ ]]; then CONDA_LABEL="pre-release"; fi
+          if [[ $GITHUB_REF =~ ^refs/heads/dev$ && $PKG_VERSION =~ ^([0-9]+\.){3}dev[0-9]+$ ]]; then CONDA_LABEL="pre-release"; fi
 
           # tagged vM.N.P on branch main upload to conda label main
-          if [[ $FAKE_GITHUB_REF =~ ^refs/tags/v([0-9]+\.){2}[0-9]+$ && $PKG_VERSION == $PKG_MNP ]]; then CONDA_LABEL="main"; fi
+          if [[ $GITHUB_REF =~ ^refs/tags/v([0-9]+\.){2}[0-9]+$ && $PKG_VERSION == $PKG_MNP ]]; then CONDA_LABEL="main"; fi
           export CONDA_LABEL TARBALL PKG_VERSION PKG_MNP
           printenv | sort
 
