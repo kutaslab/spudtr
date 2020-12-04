@@ -73,5 +73,5 @@ jobs:
           if [[ $FAKE_GIT_REF =~ ^refs/heads/dev$ && $PKG_VERSION =~ ^([0-9]+\.){3}dev[0-9]+$ ]]; then CONDA_LABEL="pre-release"; fi
           if [[ $FAKE_GIT_REF =~ ^refs/tags/v([0-9]+\.){2}[0-9]+$ && $PKG_VERSION =~ ^([0-9]+\.){2}\.[0-9]+$ ]]; then CONDA_LABEL="main"; fi
           export CONDA_LABEL TARBALL PKG_VERSION PKG_MNP
-          printenv | sort
+          printenv CONDA_LABEL TARBALL PKG_VERSION PKG_MNP
 
