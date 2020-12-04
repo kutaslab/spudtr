@@ -30,10 +30,11 @@ jobs:
       - run: conda info -a
       - run: printenv PACKAGE_NAME
       - run: echo $PACKAGE_NAME $PY_VER
-      - run: conda create -n "pyenv_$PY_VER" "python=$PY_VER"
+      - run: conda create -n "pyenv_$PY_VER" "python=$PY_VER" numpy
       - run: conda env list
       - run: conda deactivate
       - run: conda activate "pyenv_$PY_VER"
+      - run: conda env list
       - run: conda list
 
 
