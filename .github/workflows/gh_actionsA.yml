@@ -32,6 +32,6 @@ jobs:
       - name: test
         shell: bash -l {0}
         run: |
-          conda activate "pyenv_$PY_VER"
           conda create -n "pyenv_$PY_VER" "python=$PY_VER" numpy pandas -c defaults -c conda-forge
+          conda activate "pyenv_$PY_VER"
           conda list
