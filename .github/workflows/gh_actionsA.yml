@@ -36,27 +36,30 @@ jobs:
           conda config --set always_yes yes --set changeps1 no
           conda install -q conda-build conda-verify
           conda info -a
-          conda build --python=$PYTHON_M_N -c defaults -c conda-forge conda
+          # conda build --python=$PYTHON_M_N -c defaults -c conda-forge conda
+          # testing 
+          touch $CONDA_BLD_PATH/linux-64/$PACKAGE_NAME-0.0.0.dev0-$PYMN.tar.bz
 
-      - name: conda create env and install
-        run: conda create -n env_$PYMN python=$PYTHON_M_N $PACKAGE_NAME -c file://$CONDA_BLD_PATH -c defaults -c conda-forge
+#      - name: conda create env and install
+#        run: conda create -n env_$PYMN python=$PYTHON_M_N $PACKAGE_NAME -c file://$CONDA_BLD_PATH -c defaults -c conda-forge
 
-      - name: pytest 
-        run: |
-          conda activate env_$PYMN
-          conda install -q black pytest pytest-cov
-          conda list
-          lscpu
-          python -c 'import numpy; numpy.show_config()'
-          # black --check --verbose .
-          # pytest --cov=$PACKAGE_NAME
+      # - name: pytest 
+      #   run: |
+      #     conda activate env_$PYMN
+      #     conda install -q black pytest pytest-cov
+      #     conda list
+      #     lscpu
+      #     python -c 'import numpy; numpy.show_config()'
+      #     # black --check --verbose .
+      #     # pytest --cov=$PACKAGE_NAME
 
       - name: conda convert 
         run: |
           ls -l -R $CONDA_BLD_PATH/linux-64/$PACKAGE_NAME-*-$PYMN*.tar.bz2
-          mkdir /tmp/$PYMN/linux-64
+          mkdir -p /tmp/$PYMN/linux-64
           cp $CONDA_BLD_PATH/linux-64/$PACKAGE_NAME-*-$PYMN*.tar.bz2 /tmp/$PYMN/linux-64
-          conda convert -p osx-64 -p win-64 /tmp/$PYMN/linux-64/*.tar.bz -o /tmp/$PYMN
+          ls -l -R /tmp/$PYMN
+#          conda convert -p osx-64 -p win-64 /tmp/$PYMN/linux-64/*.tar.bz -o /tmp/$PYMN
 
   # deploy:
   #   needs: package-and-test
