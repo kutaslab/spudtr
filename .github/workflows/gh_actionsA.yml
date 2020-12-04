@@ -53,7 +53,7 @@ jobs:
           # touch $CONDA_BLD_PATH/linux-64/$PACKAGE_NAME-0.0.0-${PYMN}_${GIT_ABBREV_COMMIT}.tar.bz2
           ls -l -R $CONDA_BLD_PATH/linux-64
 
-      - name: conda create env and install
+      - name: create conda env and install
         run: conda create -n env_$PYMN python=$PYTHON_M_N $PACKAGE_NAME -c file://$CONDA_BLD_PATH -c defaults -c conda-forge
 
       # - name: pytest
@@ -66,15 +66,12 @@ jobs:
       #     # black --check --verbose .
       #     # pytest --cov=$PACKAGE_NAME
 
-      - name: conda convert
+      - name: conda convert and upload packages
         run: |
-          ls -l -R $CONDA_BLD_PATH/linux-64/$PACKAGE_NAME-*.tar.bz2
-          conda convert -p osx-64 -p win-64 ${CONDA_BLD_PATH}/linux-64/${PACKAGE_NAME}-*.tar.bz
-          ls -l -R $CONDA_BLD_PATH/linux-64/$PACKAGE_NAME-*-$PYMN*.tar.bz2
-
-      - name: conda upload
-        run: |
+          ls -l -R $CONDA_BLD_PATH/linux-64
           TARBALL=`/bin/ls -1 $CONDA_BLD_PATH/linux-64/${PACKAGE_NAME}-*-*.tar.bz2`
+          conda convert -p osx-64 -p win-64 $TARBALL
+          ls -l -R $CONDA_BLD_PATH/linux-64
           PKG_VERSION=`echo $TARBALL | sed -n "s/.*${PACKAGE_NAME}-\(.\+\)-.*/\1/p"`
           PKG_MNP=`echo $PKG_VERSION | sed -n "s/\(\([0-9]\+\.\)\{1,2\}[0-9]\+\).*/\1/p"`
 
@@ -83,7 +80,7 @@ jobs:
 
           # tagged vM.N.P on branch main upload to conda label main
           if [[ $GITHUB_REF =~ ^refs/tags/v([0-9]+\.){2}[0-9]+$ && $PKG_VERSION == $PKG_MNP ]]; then CONDA_LABEL="main"; fi
-          export CONDA_LABEL TARBALL PKG_VERSION PKG_MNP
+          # export CONDA_LABEL TARBALL PKG_VERSION PKG_MNP
           # printenv | sort
 
           # ANACONDA_TOKEN=${ANACONDA_TOKEN:-[not_set]}
