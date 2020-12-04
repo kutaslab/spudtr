@@ -14,7 +14,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        pyver: ["3.6"] # , "3.7", "3.8"]
+        pyver: ["3.6", "3.7", "3.8"]
     env:
       PY_VER: ${{ matrix.pyver }}
       CONDA_BLD: file:///usr/share/miniconda/envs/builder/conda-bld
@@ -36,8 +36,6 @@ jobs:
           conda build --python=$PY_VER -c defaults -c conda-forge conda
 
       - name: install
-        # run: |
-        #  conda create -n pyenv_$PY_VER python=$PY_VER $PACKAGE_NAME -c local -c defaults -c conda-forge
         run: |
           conda create -n pyenv_$PY_VER python=$PY_VER $PACKAGE_NAME -c $CONDA_BLD -c defaults -c conda-forge
 
@@ -46,3 +44,7 @@ jobs:
           conda activate pyenv_$PY_VER
           conda install -q black pytest pytest-cov
           conda list
+          lscpu
+          python -c 'import numpy; numpy.show_config()'
+          black --check --verbose .
+          pytest --cov=$PACKAGE_NAME
