@@ -28,10 +28,16 @@ jobs:
         shell: bash -l {0}
         run: |
           conda config --set always_yes yes --set changeps1 no
+          conda info -a
+          conda install -q conda-build conda-verify
+
+      - name: create
+        shell: bash -l {0}
+        run: |
+          conda create -n pyenv_$PY_VER python=$PY_VER numpy pandas -c defaults -c conda-forge
 
       - name: test
         shell: bash -l {0}
         run: |
-          conda create -n "pyenv_$PY_VER" "python=$PY_VER" numpy pandas -c defaults -c conda-forge
-          conda activate "pyenv_$PY_VER"
+          conda activate pyenv_$PY_VER
           conda list
