@@ -73,16 +73,6 @@ jobs:
           PKG_MNP=`echo $PKG_VERSION | sed -n "s/\(\([0-9]\+\.\)\{1,2\}[0-9]\+\).*/\1/p"`
           if [[ $FAKE_GIT_REF =~ ^refs/heads/dev$ && $PKG_VERSION =~ ^([0-9]+\.){3}dev[0-9]+$ ]]; then CONDA_LABEL="pre-release"; fi
           if [[ $FAKE_GIT_REF =~ ^refs/tags/v([0-9]+\.){2}[0-9]+$ && $PKG_VERSION =~ ^([0-9]+\.){2}\.[0-9]+$ ]]; then CONDA_LABEL="main"; fi
-          export CONDA_LABEL TARBALL PKG_VERSION PKG_MNP
-          printenv FAKE_GIT_REF CONDA_LABEL TARBALL PKG_VERSION PKG_MNP
+          export TARBALL PKG_VERSION PKG_MNP
+          printenv | sort
 
-  # deploy:
-  #   needs: package-and-test
-  #   runs-on: ubuntu-latest
-  #   steps:
-  #     - name: codecov
-  #       run: |
-  #         printenv | sort
-  #         conda env list
-  #         conda list
-  #         ls -R $CONDA_BLD
