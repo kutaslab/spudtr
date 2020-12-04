@@ -20,9 +20,12 @@ jobs:
       # conda builder want python version M.N with the decimal
       # conda tarball package naming convention is pyMN
       PYTHON_M_N: ${{ format('{0}.{1}', matrix.py_M , matrix.py_N) }}
-      PYMN: ${{ format('py{0}{1}', matrix.py_M, matrix.py_N ) }}
+      PYMN: ${{ format('py{0}{1}', matrix.py_M, matrix.py_N) }}
 
     steps:
+      - name: env dump
+        run: printenv | sort
+
       - uses: actions/checkout@v2
 
       # use @vM or @SHA for security, this is v2.0.1
@@ -39,7 +42,7 @@ jobs:
           # conda build --python=$PYTHON_M_N -c defaults -c conda-forge conda
           # testing 
           mkdir -p $CONDA_BLD_PATH/linux-64
-          touch $CONDA_BLD_PATH/linux-64/$PACKAGE_NAME-0.0.0.dev0-$PYMN_dummy.tar.bz
+          touch $CONDA_BLD_PATH/linux-64/$PACKAGE_NAME-0.0.0.dev0-${PYMN}_dummy.tar.bz
           ls -l -R $CONDA_BLD_PATH/linux-64
 #      - name: conda create env and install
 #        run: conda create -n env_$PYMN python=$PYTHON_M_N $PACKAGE_NAME -c file://$CONDA_BLD_PATH -c defaults -c conda-forge
