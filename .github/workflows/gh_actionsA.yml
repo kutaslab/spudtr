@@ -26,26 +26,27 @@ jobs:
       - name: env dump
         run: printenv | sort
 
-      - uses: actions/checkout@v2
+      # - uses: actions/checkout@v2
 
       # use @vM or @SHA for security, this is v2.0.1
-      - uses: conda-incubator/setup-miniconda@73b9a8098aade40363e43af145303c23542ccb97
-        with:
-          python-version: ${{ env.PYTHON_M_N }}
-          activate-environment: builder
+      # - uses: conda-incubator/setup-miniconda@73b9a8098aade40363e43af145303c23542ccb97
+      #   with:
+      #     python-version: ${{ env.PYTHON_M_N }}
+      #     activate-environment: builder
 
       - name: conda build
         run: |
-          conda config --set always_yes yes --set changeps1 no
-          conda install -q conda-build conda-verify
+          # conda config --set always_yes yes --set changeps1 no
+          # conda install -q conda-build conda-verify
           # conda info -a
           # conda build --python=$PYTHON_M_N -c defaults -c conda-forge conda
-          # testing 
+          # for testing 
           mkdir -p $CONDA_BLD_PATH/linux-64
           touch $CONDA_BLD_PATH/linux-64/$PACKAGE_NAME-0.0.0.dev0-${PYMN}_dummy.tar.bz
           ls -l -R $CONDA_BLD_PATH/linux-64
-#      - name: conda create env and install
-#        run: conda create -n env_$PYMN python=$PYTHON_M_N $PACKAGE_NAME -c file://$CONDA_BLD_PATH -c defaults -c conda-forge
+
+      # - name: conda create env and install
+      #   run: conda create -n env_$PYMN python=$PYTHON_M_N $PACKAGE_NAME -c file://$CONDA_BLD_PATH -c defaults -c conda-forge
 
       # - name: pytest 
       #   run: |
