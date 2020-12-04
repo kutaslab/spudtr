@@ -17,9 +17,8 @@ jobs:
         pyver: ["3.6", "3.7", "3.8"]
     env:
       PY_VER: ${{ matrix.pyver }}
-
+      BLD_PATH: $CONDA_BLD/${{ matrix.pyver }}
     steps:
-      # 
       - uses: actions/checkout@v2
         # v2 or SHA for security, v2.0.1 73b9a8098aade40363e43af145303c23542ccb97
       - uses: conda-incubator/setup-miniconda@73b9a8098aade40363e43af145303c23542ccb97
@@ -34,12 +33,13 @@ jobs:
       - name: conda build 
         run: |
           conda config --set always_yes yes --set changeps1 no
+          conda config --set bld_path $BLD_PATH
           conda info -a
-#          conda install -q conda-build conda-verify
-#          conda build --python=$PY_VER -c defaults -c conda-forge conda
+          conda install -q conda-build conda-verify
+          conda build --python=$PY_VER -c defaults -c conda-forge conda
 
-#      - name: conda create env and install
-#        run: conda create -n pyenv_$PY_VER python=$PY_VER $PACKAGE_NAME -c $CONDA_BLD -c defaults -c conda-forge
+      - name: conda create env and install
+       run: conda create -n pyenv_$PY_VER python=$PY_VER $PACKAGE_NAME -c $CONDA_BLD -c defaults -c conda-forge
 
       - name: black and pytest
         run: |
