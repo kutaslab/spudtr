@@ -1,6 +1,10 @@
 name: gh_actionsA
 on: [push]
 env:
+  FAKE_GITHUB_REF: /refs/heads/dev
+  # FAKE_GITHUB_REF: /refs/head/not_dev
+  # FAKE_GITHUB_REF: /refs/tags/v0.5.0
+
   PACKAGE_NAME: spudtr  # for conda_upload.sh deploy script
   CONDA_BLD_PATH: /usr/share/miniconda/envs/builder/conda-bld
 
@@ -61,9 +65,6 @@ jobs:
       - name: conda convert 
         run: |
           ls -l -R $CONDA_BLD_PATH/linux-64/$PACKAGE_NAME-*-$PYMN*.tar.bz2
-          mkdir -p /tmp/$PYMN/linux-64
-          cp $CONDA_BLD_PATH/linux-64/$PACKAGE_NAME-*-$PYMN*.tar.bz2 /tmp/$PYMN/linux-64
-          ls -l -R /tmp/$PYMN
           # conda convert -p osx-64 -p win-64 /tmp/$PYMN/linux-64/*.tar.bz -o /tmp/$PYMN
 
       - name: conda upload
@@ -71,7 +72,9 @@ jobs:
           TARBALL=`/bin/ls -1 $CONDA_BLD_PATH/linux-64/${PACKAGE_NAME}-*-*.tar.bz2`
           PKG_VERSION=`echo $TARBALL | sed -n "s/.*${PACKAGE_NAME}-\(.\+\)-.*/\1/p"`
           PKG_MNP=`echo $PKG_VERSION | sed -n "s/\(\([0-9]\+\.\)\{1,2\}[0-9]\+\).*/\1/p"`
-          export TARBALL PKG_VERSION PKG_MNP
+          if [[ $FAKE_GIT_REF =~ ^refs/heads/dev$ && $PKG_VERSION =~ ^([0-9]+\.){3}dev[0-9]+$ ]]; then CONDA_LABEL="pre-release"; fi
+          if [[ $FAKE_GIT_REF =~ ^refs/tags/v([0-9]+\.){2}[0-9]+$ && $PKG_VERSION =~ ^([0-9]+\.){2}\.[0-9]+$ ]]; then CONDA_LABEL="main"; fi
+          export CONDA_LABEL TARBALL PKG_VERSION PKG_MNP
           printenv | sort
 
   # deploy:
