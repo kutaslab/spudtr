@@ -32,32 +32,31 @@ jobs:
       - name: env dump
         run: printenv | sort
 
-      # - uses: actions/checkout@v2
+      - uses: actions/checkout@v2
 
       # use @vM or @SHA for security, this is v2.0.1
-      # - uses: conda-incubator/setup-miniconda@73b9a8098aade40363e43af145303c23542ccb97
-      #   with:
-      #     python-version: ${{ env.PYTHON_M_N }}
-      #     activate-environment: builder
+      - uses: conda-incubator/setup-miniconda@73b9a8098aade40363e43af145303c23542ccb97
+        with:
+          python-version: ${{ env.PYTHON_M_N }}
+          activate-environment: builder
 
       - name: conda build
         run: |
-          # export GIT_ABBREV_COMMIT=g$(git log --full-history --abbrev-commit --oneline -n 1 | awk '{print $1}')
           export GIT_ABBREV_COMMIT=g${GITHUB_SHA:0:8}
-          # conda config --set always_yes yes --set changeps1 no
-          # conda install -q conda-build conda-verify
-          # conda info -a
-          # conda build --python=$PYTHON_M_N -c defaults -c conda-forge conda
-          # for testing 
-          mkdir -p $CONDA_BLD_PATH/linux-64
-          #touch $CONDA_BLD_PATH/linux-64/$PACKAGE_NAME-0.0.0.dev0-${PYMN}_dummy.tar.bz2
-          touch $CONDA_BLD_PATH/linux-64/$PACKAGE_NAME-0.0.0-${PYMN}_${GIT_ABBREV_COMMIT}.tar.bz2
+          conda config --set always_yes yes --set changeps1 no
+          conda install -q conda-build conda-verify
+          conda info -a
+          conda build --python=$PYTHON_M_N -c defaults -c conda-forge conda
+          # for testing
+          # mkdir -p $CONDA_BLD_PATH/linux-64
+          # touch $CONDA_BLD_PATH/linux-64/$PACKAGE_NAME-0.0.0.dev0-${PYMN}_dummy.tar.bz2
+          # touch $CONDA_BLD_PATH/linux-64/$PACKAGE_NAME-0.0.0-${PYMN}_${GIT_ABBREV_COMMIT}.tar.bz2
           ls -l -R $CONDA_BLD_PATH/linux-64
 
-      # - name: conda create env and install
-      #   run: conda create -n env_$PYMN python=$PYTHON_M_N $PACKAGE_NAME -c file://$CONDA_BLD_PATH -c defaults -c conda-forge
+      - name: conda create env and install
+        run: conda create -n env_$PYMN python=$PYTHON_M_N $PACKAGE_NAME -c file://$CONDA_BLD_PATH -c defaults -c conda-forge
 
-      # - name: pytest 
+      # - name: pytest
       #   run: |
       #     conda activate env_$PYMN
       #     conda install -q black pytest pytest-cov
@@ -67,10 +66,11 @@ jobs:
       #     # black --check --verbose .
       #     # pytest --cov=$PACKAGE_NAME
 
-      - name: conda convert 
+      - name: conda convert
         run: |
+          ls -l -R $CONDA_BLD_PATH/linux-64/$PACKAGE_NAME-*.tar.bz2
+          conda convert -p osx-64 -p win-64 ${CONDA_BLD_PATH}/linux-64/${PACKAGE_NAME}-*.tar.bz
           ls -l -R $CONDA_BLD_PATH/linux-64/$PACKAGE_NAME-*-$PYMN*.tar.bz2
-          # conda convert -p osx-64 -p win-64 /tmp/$PYMN/linux-64/*.tar.bz -o /tmp/$PYMN
 
       - name: conda upload
         run: |
@@ -84,10 +84,8 @@ jobs:
           # tagged vM.N.P on branch main upload to conda label main
           if [[ $GITHUB_REF =~ ^refs/tags/v([0-9]+\.){2}[0-9]+$ && $PKG_VERSION == $PKG_MNP ]]; then CONDA_LABEL="main"; fi
           export CONDA_LABEL TARBALL PKG_VERSION PKG_MNP
-          printenv | sort
+          # printenv | sort
 
           # ANACONDA_TOKEN=${ANACONDA_TOKEN:-[not_set]}
           conda_cmd="anaconda --token $ANACONDA_TOKEN upload $CONDA_BLD_PATH/**/${PACKAGE_NAME}*.tar.bz2 --label $CONDA_LABEL --skip-existing"
           echo "conda command" $conda_cmd
-
-
