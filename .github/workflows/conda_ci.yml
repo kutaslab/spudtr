@@ -110,14 +110,14 @@ jobs:
 
       # deploy docs and PyPI on tagged vM.N.P releases only
       - name: codecov
-        if: ${{ matrix.py_ver == '3.8' and steps.conda-bld.outputs.deploy-type == 'ci-test' }}
+        if: ${{ matrix.py_ver == '3.8' && steps.conda-bld.outputs.deploy-type == 'ci-test' }}
         run: | 
           conda activate env_$PY_VER
           conda install -q codecov && codecov
 
       # built here in the active env to nbconvert notebook demos
       - name: make sphinx docs
-        if: ${{ matrix.py_ver == '3.8' and steps.conda-bld.outputs.deploy-type == 'ci-test' }}
+        if: ${{ matrix.py_ver == '3.8' && steps.conda-bld.outputs.deploy-type == 'ci-test' }}
         run: |
           conda activate env_$PY_VER
           conda install -q sphinx sphinx_rtd_theme jupyter nbsphinx "nbconvert!=5.4" -c defaults -c conda-forge
@@ -126,7 +126,7 @@ jobs:
           # touch docs/build/html/.nojekyll  # by default w/ action-gh-pages
 
       - name: deploy docs to ghpages
-        if: ${{ matrix.py_ver == '3.8' and steps.conda-bld.outputs.deploy-type == 'ci-test' }}
+        if: ${{ matrix.py_ver == '3.8' && steps.conda-bld.outputs.deploy-type == 'ci-test' }}
         uses: peaceiris/actions-gh-pages@v3
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
