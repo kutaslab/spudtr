@@ -37,23 +37,22 @@ jobs:
           conda install -q conda-build conda-verify
           conda info -a
           conda build --python=$PY_VER -c defaults -c conda-forge conda
-          # ls -l -R $CONDA_BLD_PATH/linux-64
 
       - name: install in fresh env
         run: |
           conda create -n env_$PY_VER python=$PY_VER $PACKAGE_NAME -c file://$CONDA_BLD_PATH -c defaults -c conda-forge
 
-      - name: black and pytest
+      - name: black, pytest, codecov
         run: |
           conda activate env_$PY_VER
           conda install -q black pytest pytest-cov
           conda list
           lscpu
           python -c 'import numpy; numpy.show_config()'
-          # black --check --verbose .
-          # pytest --cov=$PACKAGE_NAME 
+          black --check --verbose .
+          pytest --cov=$PACKAGE_NAME 
           
-      - name: conda convert and upload packages
+      - name: convert and upload conda packges
         env:
           ANACONDA_TOKEN: ${{ secrets.ANACONDA_TOKEN }}
         run: |
@@ -76,7 +75,7 @@ jobs:
           conda_cmd="anaconda --token "$ANACONDA_TOKEN" upload $CONDA_BLD_PATH/**/${PACKAGE_NAME}*.tar.bz2 --label $CONDA_LABEL --skip-existing"
           echo "conda command" $conda_cmd
           # if [[ $CONDA_LABEL == "pre-release" || $CONDA_LABEL == "main" ]]; then $conda_cmd; fi
-          # $conda_cmd
+          $conda_cmd
 
       - name: codecov and sphinx docs
         if: ${{ matrix.py_ver == '3.8' }}
@@ -87,5 +86,15 @@ jobs:
           conda list
           codecov
           make -C docs html
-          touch docs/build/html/.nojekyll
+          # touch docs/build/html/.nojekyll  # by default w/ action-gh-pages
+
+      - name: deploy docs to ghpages
+        if: ${{ matrix.py_ver == '3.8' }}
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: docs/build/html
+          force_orphan: true
+          enable_jekyll: false  # enforce current default
+          # TODO destination_dir: ??? ... maybe target pre-release and main docs?
 
