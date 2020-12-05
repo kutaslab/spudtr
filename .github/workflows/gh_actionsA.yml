@@ -56,9 +56,9 @@ jobs:
       - name: create conda env and install
         run: conda create -n env_$PYMN python=$PYTHON_M_N $PACKAGE_NAME -c file://$CONDA_BLD_PATH -c defaults -c conda-forge
 
-      # - name: pytest
-      #   run: |
-      #     conda activate env_$PYMN
+      - name: pytest
+        run: |
+          conda activate env_$PYMN
       #     conda install -q black pytest pytest-cov
       #     conda list
       #     lscpu
@@ -70,12 +70,14 @@ jobs:
         env:
           ANACONDA_TOKEN: ${{ secrets.ANACONDA_TOKEN }}
         run: |
+          conda install anaconda
           ls -l -R $CONDA_BLD_PATH/linux-64
           TARBALL=`/bin/ls -1 $CONDA_BLD_PATH/linux-64/${PACKAGE_NAME}-*-*.tar.bz2`
-          conda convert -p osx-64 -p win-64 $TARBALL -o $CONDA_BLD_PATH
-          ls -l -R $CONDA_BLD_PATH/**/${PACKAGE_NAME}*.tar.bz2
           PKG_VERSION=`echo $TARBALL | sed -n "s/.*${PACKAGE_NAME}-\(.\+\)-.*/\1/p"`
           PKG_MNP=`echo $PKG_VERSION | sed -n "s/\(\([0-9]\+\.\)\{1,2\}[0-9]\+\).*/\1/p"`
+
+          conda convert -p osx-64 -p win-64 $TARBALL -o $CONDA_BLD_PATH
+          ls -l -R $CONDA_BLD_PATH/**/${PACKAGE_NAME}*.tar.bz2
 
           # M.N.P.devX on branch dev uploads to conda label pre-release
           if [[ $GITHUB_REF =~ ^refs/heads/dev$ && $PKG_VERSION =~ ^([0-9]+\.){3}dev[0-9]+$ ]]; then CONDA_LABEL="pre-release"; fi
@@ -89,4 +91,3 @@ jobs:
           conda_cmd="anaconda --token "$ANACONDA_TOKEN" upload $CONDA_BLD_PATH/**/${PACKAGE_NAME}*.tar.bz2 --label $CONDA_LABEL --skip-existing"
           echo "conda command" $conda_cmd
           $conda_cmd
-
