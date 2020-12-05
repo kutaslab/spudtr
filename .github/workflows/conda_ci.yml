@@ -28,14 +28,6 @@ jobs:
           python-version: ${{ env.PY_VER }}
           activate-environment: builder
 
-      - name: make sphinx docs
-        run: |
-          conda install -q sphinx sphinx_rtd_theme jupyter nbsphinx "nbconvert!=5.4" -c defaults -c conda-forge
-          conda install -q pandoc
-          conda list
-          make -C docs html
-          touch docs/build/html/.nojekyll
-
       - name: conda build
         run: |
           export GIT_ABBREV_COMMIT=g${GITHUB_SHA:0:8}
@@ -47,6 +39,15 @@ jobs:
 
       - name: create conda env and install
         run: conda create -n env_$PY_VER python=$PY_VER $PACKAGE_NAME -c file://$CONDA_BLD_PATH -c defaults -c conda-forge
+
+      - name: make sphinx docs
+        run: |
+          conda install -q sphinx sphinx_rtd_theme jupyter nbsphinx "nbconvert!=5.4" -c defaults -c conda-forge
+          conda install -q pandoc
+          conda list
+          make -C docs html
+          touch docs/build/html/.nojekyll
+          ls nothing
 
       - name: black and pytest
         run: |
