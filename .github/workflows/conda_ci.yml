@@ -22,6 +22,13 @@ jobs:
       PY_VER: ${{ matrix.py_ver }}
 
     steps:
+
+      - name: output-test
+        id: output-test
+        outputs:
+          # in conda-pkgr CONDA_LABEL tracks tagged release  vs. pre-release vs. ci-test
+          deploy-type: ${{ steps.conda-pkgr.outputs.deploy-type }}
+
       - uses: actions/checkout@v2
 
       # v0.2.1 or use release tag as above
@@ -53,6 +60,7 @@ jobs:
           pytest --cov=$PACKAGE_NAME 
           
       - name: convert and upload conda packges
+        id: conda-pkgr
         env:
           ANACONDA_TOKEN: ${{ secrets.ANACONDA_TOKEN }}
         run: |
@@ -74,27 +82,46 @@ jobs:
           # ANACONDA_TOKEN=${ANACONDA_TOKEN:-[not_set]}
           conda_cmd="anaconda --token "$ANACONDA_TOKEN" upload $CONDA_BLD_PATH/**/${PACKAGE_NAME}*.tar.bz2 --label $CONDA_LABEL --skip-existing"
           echo "conda command" $conda_cmd
-          # if [[ $CONDA_LABEL == "pre-release" || $CONDA_LABEL == "main" ]]; then $conda_cmd; fi
-          $conda_cmd
+          if [[ $CONDA_LABEL == "pre-release" || $CONDA_LABEL == "main" ]]; then $conda_cmd; fi
+          # $conda_cmd
 
-      - name: codecov and sphinx docs
+          # use deploy-type to condition docs and PyPI deployment next
+          echo "::set-output name=deploy-type::($CONDA_LABEL)"
+
+      # deploy on python 3.8 if we make it here 
+      - name: test output
+        if: ${{ steps.conda-pkgr.outputs.deploy-type == 'ci-test' }}
+        run: echo "here is the deploy type accoring to output" ${{ steps.conda-pkgr.outputs.deploy-type }}
+
+      - name: codecov
+        if: ${{ matrix.py_ver == '3.8'}}
+        run: | 
+          conda activate env_$PY_VER
+          conda install -q codecov && codecov
+
+      # built here in the active env to nbconvert notebook demos
+      - name: make sphinx docs
         if: ${{ matrix.py_ver == '3.8' }}
         run: |
           conda activate env_$PY_VER
-          conda install -q codecov sphinx sphinx_rtd_theme jupyter nbsphinx "nbconvert!=5.4" -c defaults -c conda-forge
+          conda install -q sphinx sphinx_rtd_theme jupyter nbsphinx "nbconvert!=5.4" -c defaults -c conda-forge
           conda install -q pandoc -c conda-forge
-          conda list
-          codecov
           make -C docs html
           # touch docs/build/html/.nojekyll  # by default w/ action-gh-pages
 
-      - name: deploy docs to ghpages
-        if: ${{ matrix.py_ver == '3.8' }}
-        uses: peaceiris/actions-gh-pages@v3
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: docs/build/html
-          force_orphan: true
-          enable_jekyll: false  # enforce current default
-          # TODO destination_dir: ??? ... maybe target pre-release and main docs?
+      # - name: deploy docs to ghpages
+      #   if: ${{ matrix.py_ver == '3.8' }}
+      #   uses: peaceiris/actions-gh-pages@v3
+      #   with:
+      #     github_token: ${{ secrets.GITHUB_TOKEN }}
+      #     publish_dir: docs/build/html
+      #     force_orphan: true
+      #     enable_jekyll: false  # enforce current default
+      #     # TODO destination_dir: ??? ... maybe target pre-release and main docs?
+
+      # - name: pypi-test
+      #   uses: pypa/gh-action-pypi-publish@master
+      #   with:
+      #     password: ${{ secrets.test_pypy_password }}
+      #     repository_url: https://test.pypi.org/legacy
 
