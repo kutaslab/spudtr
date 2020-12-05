@@ -91,7 +91,7 @@ jobs:
           TARBALL: ${{ steps.conda-bld.outputs.conda-tarball }}
           ANACONDA_TOKEN: ${{ secrets.ANACONDA_TOKEN }}
 
-        # comment out to test unconditional conda uploads
+        # uncomment out to restrict to dev and main uploads
         # if: ${{ steps.conda-bld.outputs.deploy-type == 'main' || steps.conda-bld.outputs.deploy-type == 'pre-release'}}
         run: |
           conda install -q anaconda
