@@ -8,7 +8,7 @@
 # testing). The gh-pages and PyPI package upload if deploy=type ==
 # 'main'
 
-name: conda-ci
+name: spudtr-cid
 on: [push]
 
 env:
