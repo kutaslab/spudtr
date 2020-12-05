@@ -94,7 +94,7 @@ jobs:
           CONDA_LABEL: ${{ steps.conda-bld.outputs.deploy-type }}
 
         # comment out for testing unconditional conda uploads
-        if: ${{ steps.conda-bld.outputs.deploy-type == 'main' || steps.conda-bld.outputs.deploy-type == 'pre-release'}}
+        # if: ${{ steps.conda-bld.outputs.deploy-type == 'main' || steps.conda-bld.outputs.deploy-type == 'pre-release'}}
         run: |
           conda install -q anaconda
           ls -l -R $CONDA_BLD_PATH/linux-64
