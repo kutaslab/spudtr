@@ -1,9 +1,9 @@
-name: gh_actionsA
+name: conda-ci
 on: [push]
 env:
   PACKAGE_NAME: spudtr  # for conda_upload.sh deploy script
   CONDA_BLD_PATH: /usr/share/miniconda/envs/builder/conda-bld
-  CONDA_LABEL: "ci-test"  # default conda upload label
+  CONDA_LABEL: "ci-test"  # default conda channel label
 
 defaults:
   run:
@@ -15,8 +15,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        # py_ver: [3.6, 3.7, 3.8]
-        py_ver: [3.8]
+        py_ver: [3.6, 3.7, 3.8]
     env:
       PY_VER: ${{ matrix.py_ver }}
 
@@ -28,6 +27,14 @@ jobs:
         with:
           python-version: ${{ env.PY_VER }}
           activate-environment: builder
+
+      - name: sphinx conda setup
+        run:
+          conda install -q sphinx sphinx_rtd_theme jupyter nbsphinx "nbconvert!=5.4" -c defaults -c conda-forge
+          conda install -q pandoc
+          conda list
+          make -C docs html
+          touch docs/build/html/.nojekyll
 
       - name: conda build
         run: |
