@@ -70,11 +70,11 @@ jobs:
           echo "::set-output name=deploy-type::$DEPLOY_TYPE"
           echo "::set-output name=conda-tarball::$TARBALL"
 
-      - name: install in fresh env
+      - name: conda create env and install package
         run: |
           conda create -n env_$PY_VER python=$PY_VER $PACKAGE_NAME -c file://$CONDA_BLD_PATH -c defaults -c conda-forge
 
-      - name: black, pytest, codecov
+      - name: black, pytest
         run: |
           conda activate env_$PY_VER
           conda install -q black pytest pytest-cov
@@ -84,7 +84,7 @@ jobs:
           black --check --verbose .
           pytest --cov=$PACKAGE_NAME 
 
-      - name: convert and upload conda packges
+      - name: convert platforms and upload conda packges
         # set conda pkg upload conditions
         # if: ${{ matrix.py_ver == '3.8' && steps.conda-bld.outputs.deploy-type == 'ci-test' }}
         if: ${{ steps.conda-bld.outputs.deploy-type == 'main' || steps.conda-bld.outputs.deploy-type == 'pre-release'}}
@@ -109,7 +109,7 @@ jobs:
           make -C docs html
           # touch docs/build/html/.nojekyll  # by default w/ action-gh-pages
 
-      - name: upload sphinx docs to ghpages
+      - name: tagged release deploys docs to gh-pages
         if: ${{ matrix.py_ver == '3.8' && steps.conda-bld.outputs.deploy-type == 'main' }}
         uses: peaceiris/actions-gh-pages@v3
         with:
@@ -119,16 +119,26 @@ jobs:
           enable_jekyll: false  # enforce current default
           # ???TODO destination_dir: "???" switch to segregate pre-release and main doc versions?
 
-      - name: codecov
+      - name: tagged release deploys codecov
         if: ${{ matrix.py_ver == '3.8' && steps.conda-bld.outputs.deploy-type == 'main' }}
         run: |
           conda activate env_$PY_VER
           conda install -q codecov && codecov
 
       # https://packaging.python.org/guides/publishing-package-distribution-releases-using-github-actions-ci-cd-workflows
-      - name: pre-release upload to test.pypi.org
+      - name: build python package sdist and wheel
+        if: ${{ matrix.py_ver == '3.8' }}
+        run: >-
+          python -m
+          build
+          --sdist
+          --wheel
+          --outdir dist/
+
+      - name: pre-release deploys python package to test.pypi.org
         if: ${{ matrix.py_ver == '3.8' && steps.conda-bld.outputs.deploy-type == 'ci-test' }}
         uses: pypa/gh-action-pypi-publish@master
         with:
           password: ${{ secrets.test_pypi_token }}
           repository_url: https://test.pypi.org/legacy
+
