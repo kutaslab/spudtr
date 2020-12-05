@@ -57,23 +57,17 @@ jobs:
           conda config --set always_yes yes --set changeps1 no
           conda install -q conda-build conda-verify
           conda info -a
-          # conda build --python=$PY_VER -c defaults -c conda-forge conda
-          mkdir -p $CONDA_BLD_PATH/linux-64
-          touch $CONDA_BLD_PATH/linux-64/spudtr-0.0.0.dev0-$PY_VER_test.tar.bz2
-          FAKE_GITHUB_REF="refs/heads/dev"
+          conda build --python=$PY_VER -c defaults -c conda-forge conda
 
           TARBALL=`/bin/ls -1 $CONDA_BLD_PATH/linux-64/${PACKAGE_NAME}-*-*.tar.bz2`
           PKG_VERSION=`echo $TARBALL | sed -n "s/.*${PACKAGE_NAME}-\(.\+\)-.*/\1/p"`
           PKG_MNP=`echo $PKG_VERSION | sed -n "s/\(\([0-9]\+\.\)\{1,2\}[0-9]\+\).*/\1/p"`
 
-          # version M.N.P.devX on branch dev uploads to conda label pre-release
-          if [[ $FAKE_GITHUB_REF =~ ^refs/heads/dev$ && $PKG_VERSION =~ ^([0-9]+\.){3}dev[0-9]+$ ]]; then CONDA_LABEL="pre-release"; fi
+          # set deploy-type to condition doc and package uploads
+          if [[ $GITHUB_REF =~ ^refs/heads/dev$ && $PKG_VERSION =~ ^([0-9]+\.){3}dev[0-9]+$ ]]; then echo "::set-output name=deploy-type::pre-release"; fi
 
           # version M.N.P tagged vM.N.P uploads to conda label main
-          if [[ $FAKE_GITHUB_REF =~ ^refs/tags/v([0-9]+\.){2}[0-9]+$ && $PKG_VERSION == $PKG_MNP ]]; then CONDA_LABEL="main"; fi
-
-          # use deploy-type to condition docs and PyPI deployment next
-          echo "::set-output name=deploy-type::$CONDA_LABEL"
+          if [[ $GITHUB_REF =~ ^refs/tags/v([0-9]+\.){2}[0-9]+$ && $PKG_VERSION == $PKG_MNP ]]; then echo "::set-output name=deploy-type::main"; fi
 
       - name: test output
         run: echo "here is the deploy-type according to action output" ${{ steps.conda-bld.outputs.deploy-type }}
