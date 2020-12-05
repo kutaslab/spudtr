@@ -66,7 +66,7 @@ jobs:
           # if on tag vM.N.P with package version M.N.P, set deploy-type "main" 
           if [[ $GITHUB_REF =~ ^refs/tags/v([0-9]+\.){2}[0-9]+$ && $PKG_VERSION == $PKG_MNP ]]; then DEPLOY_TYPE="main"; fi
 
-          # else deploy-type is default $DEPLOY_TYPE 
+          # else fall back deploy-type is default $DEPLOY_TYPE="ci-test"
           echo "::set-output name=deploy-type::$DEPLOY_TYPE"
           echo "::set-output name=conda-tarball::$TARBALL"
 
@@ -84,6 +84,7 @@ jobs:
           black --check --verbose .
           pytest --cov=$PACKAGE_NAME 
 
+      # deploy conda packages
       - name: convert platforms and upload conda packges
         # set conda pkg upload conditions
         # if: ${{ matrix.py_ver == '3.8' && steps.conda-bld.outputs.deploy-type == 'ci-test' }}
@@ -125,15 +126,12 @@ jobs:
           conda activate env_$PY_VER
           conda install -q codecov && codecov
 
+      # ------------------------------------------------------------
+      # Python packaging
       # https://packaging.python.org/guides/publishing-package-distribution-releases-using-github-actions-ci-cd-workflows
-      - name: build python package sdist and wheel
+      - name: build python package sdist
         if: ${{ matrix.py_ver == '3.8' }}
-        run: >-
-          python -m
-          build
-          --sdist
-          --wheel
-          --outdir dist/
+        run: python setup.py sdist
 
       - name: pre-release deploys python package to test.pypi.org
         if: ${{ matrix.py_ver == '3.8' && steps.conda-bld.outputs.deploy-type == 'ci-test' }}
@@ -142,3 +140,8 @@ jobs:
           password: ${{ secrets.test_pypi_token }}
           repository_url: https://test.pypi.org/legacy
 
+      # - name: main  deploys python package to pypi.org
+      #   if: ${{ matrix.py_ver == '3.8' && steps.conda-bld.outputs.deploy-type == 'main' }}
+      #   uses: pypa/gh-action-pypi-publish@master
+      #   with:
+      #     password: ${{ secrets.pypi_token }}
