@@ -85,21 +85,18 @@ jobs:
           pytest --cov=$PACKAGE_NAME 
 
       - name: convert and upload conda packges
+        # comment out to test unconditional uploads
+        if: ${{ steps.conda-bld.outputs.deploy-type == 'main' || steps.conda-bld.outputs.deploy-type == 'pre-release'}}
         env:
           # ci-test, pre-release, or main
           CONDA_LABEL: ${{ steps.conda-bld.outputs.deploy-type }}
           TARBALL: ${{ steps.conda-bld.outputs.conda-tarball }}
           ANACONDA_TOKEN: ${{ secrets.ANACONDA_TOKEN }}
 
-        # uncomment out to restrict to dev and main uploads
-        # if: ${{ steps.conda-bld.outputs.deploy-type == 'main' || steps.conda-bld.outputs.deploy-type == 'pre-release'}}
         run: |
           conda install -q anaconda
           conda convert -p osx-64 -p win-64 $TARBALL -o $CONDA_BLD_PATH
-          anaconda --token "$ANACONDA_TOKEN" upload $CONDA_BLD_PATH/**/${PACKAGE_NAME}*.tar.bz2 --label $CONDA_LABEL --skip-existing
-          # conda_cmd="anaconda --token "$ANACONDA_TOKEN" upload **/${PACKAGE_NAME}*.tar.bz2 --label $CONDA_LABEL --skip-existing"
-          # echo "conda command:" $conda_cmd 
-          # $conda_cmd
+          anaconda upload $CONDA_BLD_PATH/**/${PACKAGE_NAME}*.tar.bz2 --token "$ANACONDA_TOKEN" --label $CONDA_LABEL --skip-existing
 
       # ensure docs build
       - name: make sphinx docs
@@ -134,5 +131,3 @@ jobs:
         with:
           password: ${{ secrets.testpypi_token }}
           repository_url: https://test.pypi.org/legacy
-
-
