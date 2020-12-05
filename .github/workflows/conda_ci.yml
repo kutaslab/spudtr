@@ -4,6 +4,8 @@ env:
   PACKAGE_NAME: spudtr  # for conda_upload.sh deploy script
   CONDA_BLD_PATH: /usr/share/miniconda/envs/builder/conda-bld
   CONDA_LABEL: "ci-test"  # default conda channel label
+  SPHINX_DOCS_PATH: $HOME/docs
+  SPHIX_DOCS_HTML: $HOME/docs/build/html
 
 defaults:
   run:
@@ -48,12 +50,11 @@ jobs:
           lscpu
           python -c 'import numpy; numpy.show_config()'
           # black --check --verbose .
-          # pytest
-
+          # pytest --cov=$PACKAGE_NAME 
+          
       - name: codecov
         if: ${{ matrix.py_ver == '3.8' }}
-        run: |
-          pytest --cov=$PACKAGE_NAME codecov
+        run: codecov
 
       - name: make sphinx docs
         if: ${{ matrix.py_ver == '3.8' }}
