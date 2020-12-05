@@ -127,13 +127,12 @@ jobs:
           conda activate env_$PY_VER
           conda install -q codecov && codecov
 
-      # 
       # https://packaging.python.org/guides/publishing-package-distribution-releases-using-github-actions-ci-cd-workflows
-      # - name: pypi-test
-      #   uses: pypa/gh-action-pypi-publish@master
-      #   with:
-      #     password: ${{ secrets.test_pypy_password }}
-      #     repository_url: https://test.pypi.org/legacy
-      #   if: ${{ matrix.py_ver == '3.8' && steps.conda-bld.outputs.deploy-type == 'pre-release' }}
+      - name: pypi-test
+        if: ${{ matrix.py_ver == '3.8' && steps.conda-bld.outputs.deploy-type == 'ci-test' }}
+        uses: pypa/gh-action-pypi-publish@master
+        with:
+          password: ${{ secrets.testpypi_token }}
+          repository_url: https://test.pypi.org/legacy
 
 
