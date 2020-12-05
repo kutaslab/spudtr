@@ -28,8 +28,8 @@ jobs:
           python-version: ${{ env.PY_VER }}
           activate-environment: builder
 
-      - name: sphinx conda setup
-        run:
+      - name: make sphinx docs
+        run: |
           conda install -q sphinx sphinx_rtd_theme jupyter nbsphinx "nbconvert!=5.4" -c defaults -c conda-forge
           conda install -q pandoc
           conda list
