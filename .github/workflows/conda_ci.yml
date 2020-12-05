@@ -82,7 +82,7 @@ jobs:
         if: ${{ matrix.py_ver == '3.8' }}
         run: |
           conda activate env_$PY_VER
-          conda install -q codedov sphinx sphinx_rtd_theme jupyter nbsphinx "nbconvert!=5.4" -c defaults -c conda-forge
+          conda install -q codecov sphinx sphinx_rtd_theme jupyter nbsphinx "nbconvert!=5.4" -c defaults -c conda-forge
           conda install -q pandoc -c conda-forge
           conda list
           codecov
