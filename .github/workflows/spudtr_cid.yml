@@ -132,7 +132,7 @@ jobs:
       # https://packaging.python.org/guides/publishing-package-distribution-releases-using-github-actions-ci-cd-workflows
       - name: build python package sdist
         if: ${{ matrix.py_ver == '3.8' }}
-        run: activate env_$PY_VER && python setup.py sdist
+        run: conda activate env_$PY_VER && python setup.py sdist
 
       - name: pre-release deploys python package to test.pypi.org
         if: ${{ matrix.py_ver == '3.8' && steps.conda-bld.outputs.deploy-type == 'pre-release' }}
