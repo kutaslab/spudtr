@@ -12,8 +12,7 @@ name: spudtr-cid
 on: [push]
 
 env:
-  PACKAGE_NAME: spudtr  # for conda_upload.sh deploy script
-  CONDA_BLD_PATH: /usr/share/miniconda/envs/builder/conda-bld
+  PACKAGE_NAME: spudtr
   SPHINX_DOCS_PATH: $HOME/docs
   SPHIX_DOCS_HTML: $HOME/docs/build/html
   DEPLOY_TYPE: "ci-test"  # default conda channel label
@@ -29,13 +28,15 @@ jobs:
     strategy:
       matrix:
         py_ver: [3.6, 3.7, 3.8]
+
     env:
       PY_VER: ${{ matrix.py_ver }}
 
     outputs:
+      bld_path: ${{ steps.conda-bld.outputs.bld_path }}
+      conda-tarball: ${{ steps.conda-bld.outputs.conda-tarball }}
       # ci-test, pre-release, or main
       deploy-type: ${{ steps.conda-bld.outputs.deploy-type }}
-      conda-tarball: ${{ steps.conda-bld.outputs.conda-tarball }}
 
     steps:
 
@@ -55,7 +56,6 @@ jobs:
           conda install -q conda-build conda-verify
           conda info -a
           conda build --python=$PY_VER -c defaults -c conda-forge conda
-          # TARBALL=`/bin/ls -1 $CONDA_BLD_PATH/linux-64/${PACKAGE_NAME}-*-*.tar.bz2`
           TARBALL=$(conda build conda --output)
           PKG_VERSION=`echo $TARBALL | sed -n "s/.*${PACKAGE_NAME}-\(.\+\)-.*/\1/p"`
           PKG_MNP=`echo $PKG_VERSION | sed -n "s/\(\([0-9]\+\.\)\{1,2\}[0-9]\+\).*/\1/p"`
@@ -68,11 +68,15 @@ jobs:
 
           # else fall back deploy-type is default $DEPLOY_TYPE="ci-test"
           echo "::set-output name=deploy-type::$DEPLOY_TYPE"
+
+          # capture conda tarball and build path as croot 
           echo "::set-output name=conda-tarball::$TARBALL"
+          echo "::set-output name=bld_path::$(conda config --show croot | cut -d' ' -f2)"
 
       - name: conda create env and install package
-        run: |
-          conda create -n env_$PY_VER python=$PY_VER $PACKAGE_NAME -c file://$CONDA_BLD_PATH -c defaults -c conda-forge
+        env:
+          CONDA_BLD_PATH: ${{ steps.conda-bld.outputs.bld_path }}
+        run: conda create -n env_$PY_VER python=$PY_VER $PACKAGE_NAME -c file://$CONDA_BLD_PATH -c defaults -c conda-forge
 
       - name: black, pytest
         run: |
@@ -86,12 +90,12 @@ jobs:
 
       # deploy conda packages
       - name: convert platforms and upload conda packges
-        # set conda pkg upload conditions
-        # if: ${{ matrix.py_ver == '3.8' && steps.conda-bld.outputs.deploy-type == 'ci-test' }}
+        # set deploy-type == 'ci-test' to upload any push to label 'ci-test' for testing
         if: ${{ steps.conda-bld.outputs.deploy-type == 'main' || steps.conda-bld.outputs.deploy-type == 'pre-release'}}
         env:
-          # ci-test, pre-release, or main
+          # channel label should be pre-release, main, or ci-test (default)
           CONDA_LABEL: ${{ steps.conda-bld.outputs.deploy-type }}
+          CONDA_BLD_PATH: ${{ steps.conda-bld.outputs.bld_path }}
           TARBALL: ${{ steps.conda-bld.outputs.conda-tarball }}
           ANACONDA_TOKEN: ${{ secrets.ANACONDA_TOKEN }}
 
@@ -108,7 +112,6 @@ jobs:
           conda install -q sphinx sphinx_rtd_theme jupyter nbsphinx "nbconvert!=5.4" -c defaults -c conda-forge
           conda install -q pandoc -c conda-forge
           make -C docs html
-          # touch docs/build/html/.nojekyll  # by default w/ action-gh-pages
 
       - name: tagged release deploys docs to gh-pages
         if: ${{ matrix.py_ver == '3.8' && steps.conda-bld.outputs.deploy-type == 'main' }}
@@ -117,8 +120,8 @@ jobs:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: docs/build/html
           force_orphan: true
-          enable_jekyll: false  # enforce current default
-          # ???TODO destination_dir: "???" switch to segregate pre-release and main doc versions?
+          enable_jekyll: false  # enforce current default, as in touch .jekyll
+          # TODO??? destination_dir: ... switch to segregate pre-release and main doc versions
 
       - name: tagged release deploys codecov
         if: ${{ matrix.py_ver == '3.8' && steps.conda-bld.outputs.deploy-type == 'main' }}
@@ -131,17 +134,17 @@ jobs:
       # https://packaging.python.org/guides/publishing-package-distribution-releases-using-github-actions-ci-cd-workflows
       - name: build python package sdist
         if: ${{ matrix.py_ver == '3.8' }}
-        run: python setup.py sdist
+        run: activate env_$PY_VER && python setup.py sdist
 
       - name: pre-release deploys python package to test.pypi.org
-        if: ${{ matrix.py_ver == '3.8' && steps.conda-bld.outputs.deploy-type == 'ci-test' }}
+        if: ${{ matrix.py_ver == '3.8' && steps.conda-bld.outputs.deploy-type == 'pre-release' }}
         uses: pypa/gh-action-pypi-publish@master
         with:
           password: ${{ secrets.test_pypi_token }}
           repository_url: https://test.pypi.org/legacy/  # trailing slash is needed
 
-      # - name: main  deploys python package to pypi.org
-      #   if: ${{ matrix.py_ver == '3.8' && steps.conda-bld.outputs.deploy-type == 'main' }}
-      #   uses: pypa/gh-action-pypi-publish@master
-      #   with:
-      #     password: ${{ secrets.pypi_token }}
+      - name: main  deploys python package to pypi.org
+        if: ${{ matrix.py_ver == '3.8' && steps.conda-bld.outputs.deploy-type == 'main' }}
+        uses: pypa/gh-action-pypi-publish@master
+        with:
+          password: ${{ secrets.pypi_token }}
