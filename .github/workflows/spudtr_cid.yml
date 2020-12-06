@@ -31,7 +31,7 @@ jobs:
 
     env:
       PY_VER: ${{ matrix.py_ver }}
-      CONDA_BLD_PATH: $HOME/ci_conda_bld
+      CONDA_BLD_PATH: /tmp/ci_conda_bld
 
     outputs:
       # ci-test, pre-release, or main
