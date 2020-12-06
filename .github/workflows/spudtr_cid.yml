@@ -138,7 +138,7 @@ jobs:
         uses: pypa/gh-action-pypi-publish@master
         with:
           password: ${{ secrets.test_pypi_token }}
-          repository_url: https://test.pypi.org/legacy
+          repository_url: https://test.pypi.org/legacy/  # trailing slash is needed
 
       # - name: main  deploys python package to pypi.org
       #   if: ${{ matrix.py_ver == '3.8' && steps.conda-bld.outputs.deploy-type == 'main' }}
