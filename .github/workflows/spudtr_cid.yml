@@ -31,11 +31,12 @@ jobs:
 
     env:
       PY_VER: ${{ matrix.py_ver }}
+      CONDA_BLD_PATH: $HOME/ci_conda_bld
+
     outputs:
-      bld_path: ${{ steps.conda-bld.outputs.bld_path }}
-      conda-tarball: ${{ steps.conda-bld.outputs.conda-tarball }}
       # ci-test, pre-release, or main
       deploy-type: ${{ steps.conda-bld.outputs.deploy-type }}
+      conda-tarball: ${{ steps.conda-bld.outputs.conda-tarball }}
 
     steps:
 
@@ -45,12 +46,13 @@ jobs:
       - uses: conda-incubator/setup-miniconda@73b9a8098aade40363e43af145303c23542ccb97
         with:
           python-version: ${{ env.PY_VER }}
-          auto-activate-base: true  # enforce default
-      - name: conda build
+          activate-environment: builder
+
+      - name: conda build pkg
         id: conda-bld
         run: |
           export GIT_ABBREV_COMMIT=g${GITHUB_SHA:0:8}
-          conda config --set always_yes yes --set changeps1 no
+          conda config --set always_yes yes --set changeps1 no --set bld_path $CONDA_BLD_PATH
           conda install -q conda-build conda-verify
           conda info -a
           conda build --python=$PY_VER -c defaults -c conda-forge conda
@@ -69,11 +71,9 @@ jobs:
 
           # capture conda tarball and build path as croot 
           echo "::set-output name=conda-tarball::$TARBALL"
-          echo "::set-output name=bld_path::$(conda config --show croot | cut -d' ' -f2)"
+          # echo "::set-output name=bld_path::$(conda config --show croot | cut -d' ' -f2)"
 
       - name: conda create env and install package
-        env:
-          CONDA_BLD_PATH: ${{ steps.conda-bld.outputs.bld_path }}
         run: conda create -n env_$PY_VER python=$PY_VER $PACKAGE_NAME -c file://$CONDA_BLD_PATH -c defaults -c conda-forge
 
       - name: black, pytest
@@ -93,7 +93,6 @@ jobs:
         env:
           # channel label should be pre-release, main, or ci-test (default)
           CONDA_LABEL: ${{ steps.conda-bld.outputs.deploy-type }}
-          CONDA_BLD_PATH: ${{ steps.conda-bld.outputs.bld_path }}
           TARBALL: ${{ steps.conda-bld.outputs.conda-tarball }}
           ANACONDA_TOKEN: ${{ secrets.ANACONDA_TOKEN }}
 
