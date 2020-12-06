@@ -31,7 +31,6 @@ jobs:
 
     env:
       PY_VER: ${{ matrix.py_ver }}
-
     outputs:
       bld_path: ${{ steps.conda-bld.outputs.bld_path }}
       conda-tarball: ${{ steps.conda-bld.outputs.conda-tarball }}
@@ -46,8 +45,7 @@ jobs:
       - uses: conda-incubator/setup-miniconda@73b9a8098aade40363e43af145303c23542ccb97
         with:
           python-version: ${{ env.PY_VER }}
-          activate-environment: builder
-
+          auto-activate-base: true  # enforce default
       - name: conda build
         id: conda-bld
         run: |
