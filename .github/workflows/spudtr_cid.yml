@@ -295,28 +295,4 @@ jobs:
           git add -A
           git commit -a -m "deploy type $DEPLOY_TYPE python $DEPLOY_PY_VER"
           git push -u origin $DOCS_BRANCH --force
-
-      - name: deploy python package M.N.P.devX to test.pypi.org
-        if: ${{ matrix.py_ver == env.DEPLOY_PY_VER  && matrix.os == env.DEPLOY_OS && env.DEPLOY_TYPE == 'pre-release' }}
-        env:
-          TEST_PYPI_TOKEN: ${{ secrets.test_pypi_token }}
-        # trailing / on pypi repos is required
-        run: >-
-          twine upload
-          --repository-url https://test.pypi.org/legacy/
-          -u __token__
-          -p "$TEST_PYPI_TOKEN"
-          --skip-existing
-          dist/*
-
-      # upload to pypi.org last to avoid burning stable version strings
-      - name: deploy python package release vM.N.P to pypi.org
-        if: ${{ matrix.py_ver == env.DEPLOY_PY_VER && matrix.os == env.DEPLOY_OS && env.DEPLOY_TYPE == 'main' }}
-        env:
-          PYPI_TOKEN: ${{ secrets.pypi_token }}
-        run: >-
-          twine upload
-          --repository-url  https://upload.pypi.org/legacy/
-          -u __token__
-          -p "$PYPI_TOKEN"
-          dist/*
+          
